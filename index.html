@@ -291,28 +291,53 @@
       color: var(--ink);
     }
 
-    /* Pie Chart Section (Clean Light Reference Style) */
-    .pie-section {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 56px;
+    /* Unified Horizontal Charts Block: 40% Growth Chart + 60% Pie Chart & Legend */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 4fr 6fr;
+      align-items: start;
+      gap: 40px;
       padding-bottom: 44px;
       border-bottom: 1px solid var(--divider);
       margin-bottom: 40px;
-      flex-wrap: wrap;
+    }
+
+    @media (max-width: 960px) {
+      .charts-row {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+    }
+
+    .pie-col {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .pie-section {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+      min-width: 0;
+      margin-top: 4px;
     }
 
     .pie-box {
-      width: 302px;
-      height: 302px;
+      width: 268px;
+      height: 268px;
       position: relative;
+      flex-shrink: 0;
     }
 
     .pie-legend {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
+      white-space: nowrap;
     }
 
     .pie-leg-row {
@@ -564,6 +589,9 @@
 
     .field {
       margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
     }
 
     .field label {
@@ -594,6 +622,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
+      align-items: end;
     }
 
     .modal-footer {
@@ -602,6 +631,115 @@
       gap: 10px;
       margin-top: 22px;
     }
+  
+    /* Growth Chart Section (40% Left Column) */
+    .growth-section {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+    }
+
+    .growth-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .growth-title {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .growth-sub {
+      font-size: 13px;
+      color: var(--ink-sec);
+      margin-top: 4px;
+      line-height: 1.45;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .growth-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .growth-canvas-wrap {
+      width: 100%;
+      height: 294px;
+      position: relative;
+      margin-top: 4px;
+    }
+
+    .contrib-list {
+      max-height: 260px;
+      overflow-y: auto;
+      border-top: 1px solid var(--divider-light);
+      border-bottom: 1px solid var(--divider-light);
+      margin: 14px 0;
+    }
+
+    .contrib-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 4px;
+      border-bottom: 1px solid var(--divider-light);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      gap: 10px;
+    }
+
+    .contrib-row:last-child {
+      border-bottom: none;
+    }
+
+    .contrib-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contrib-note {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .contrib-date {
+      font-size: 11.5px;
+      color: var(--ink-muted);
+    }
+
+    .contrib-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .basis-switch {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-sec);
+      background: var(--bg-alt);
+      border: 1px solid var(--divider);
+      border-radius: 980px;
+      padding: 4px 11px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .basis-switch:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
   </style>
 </head>
 <body>
@@ -628,12 +766,30 @@
     <!-- Apple Compare-Style 3-Column Asset Class Comparison -->
     <div class="compare-grid" id="compareGrid"></div>
 
-    <!-- Clean Solid Pie Chart + Legend -->
-    <div class="pie-section">
-      <div class="pie-box">
-        <canvas id="pieChart"></canvas>
+    <!-- Unified Horizontal Charts Block: Growth Chart (Left) + Pie Chart (Right) -->
+    <div class="charts-row">
+      <!-- Portfolio Growth & Net Contributions Chart (Left, Dropbox Wave Style) -->
+      <div class="growth-section">
+        <div class="growth-header">
+          <div class="growth-title">Динамика капитала</div>
+        </div>
+        <div class="growth-canvas-wrap">
+          <canvas id="growthChart"></canvas>
+        </div>
       </div>
-      <div class="pie-legend" id="pieLegend"></div>
+
+      <!-- Clean Solid Pie Chart + Legend (Right) -->
+      <div class="pie-col">
+        <div class="growth-header" style="width: 100%; justify-content: flex-start;">
+          <div class="growth-title">Структура активов</div>
+        </div>
+        <div class="pie-section">
+          <div class="pie-box">
+            <canvas id="pieChart"></canvas>
+          </div>
+          <div class="pie-legend" id="pieLegend"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Positions Table Section -->
@@ -669,23 +825,74 @@
         <tfoot id="holdingsFoot"></tfoot>
       </table>
     </div>
+
+    <footer style="margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--divider-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: var(--ink-muted);">
+      <span>Данные хранятся локально в вашем браузере</span>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button type="button" class="mini-link" style="font-size: 12.5px;" onclick="exportBackup()">Скачать резервную копию (.json)</button>
+        <span>·</span>
+        <button type="button" class="mini-link" style="font-size: 12.5px;" onclick="document.getElementById('importFile').click()">Восстановить из файла</button>
+      </div>
+    </footer>
   </div>
 
-  <!-- Add / Edit Modal -->
-  <div class="modal-bg" id="editModal">
-    <div class="modal-box">
-      <h2 id="modalTitle">Новая позиция</h2>
-      <input type="hidden" id="editIndex" value="-1" />
+  
+  <!-- Contributions / Cashflows Modal -->
+  <div class="modal-bg" id="contribModal">
+    <div class="modal-box" style="max-width: 500px;">
+      <h2>Пополнения и выводы</h2>
+      <div style="font-size: 12.5px; color: var(--ink-sec); margin-bottom: 14px;">
+        Учитывайте только внешние вводы (+) и выводы (−) личных средств. Купоны, дивиденды и маржа внутри счёта увеличивают капитал без роста линии вложений.
+      </div>
       <div class="field-grid">
         <div class="field">
-          <label>Класс актива</label>
+          <label>Дата *</label>
+          <input type="date" id="cDate" />
+        </div>
+        <div class="field">
+          <label>Сумма, ₽ (+ ввод / − вывод) *</label>
+          <input type="number" id="cAmount" step="0.01" placeholder="Например: 50000" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Брокер / Комментарий</label>
+        <input type="text" id="cNote" placeholder="Например: Сбер / Финам / Монеты" />
+      </div>
+      <div style="display:flex; justify-content:flex-end; margin-bottom: 8px;">
+        <button class="pill-btn" onclick="addContribution()">Добавить запись</button>
+      </div>
+      <div class="contrib-list" id="contribList"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:600; margin-top:10px;">
+        <span>Итого чистых вложений:</span>
+        <span id="contribTotalLabel">0 ₽</span>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+        <div style="display:flex; gap:8px;">
+          <button class="link-btn" onclick="exportBackup()">Экспорт JSON</button>
+          <button class="link-btn" onclick="document.getElementById('importFile').click()">Импорт JSON</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)" />
+        </div>
+        <button class="pill-btn" onclick="closeContribModal()">Готово</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Modal (Unified: Positions + Cash Contributions/Withdrawals) -->
+  <div class="modal-bg" id="editModal">
+    <div class="modal-box" style="max-width: 470px;">
+      <h2 id="modalTitle">Новая позиция</h2>
+      <input type="hidden" id="editIndex" value="-1" />
+      <div class="field-grid" id="topCatGrid">
+        <div class="field" id="catFieldWrap">
+          <label>Тип / Класс актива</label>
           <select id="fCategory" onchange="syncBoardSelect()">
             <option value="Облигации">Облигации</option>
             <option value="Акции">Акции</option>
             <option value="Золото">Золото</option>
+            <option value="Пополнение">Пополнение / Вывод</option>
           </select>
         </div>
-        <div class="field">
+        <div class="field" id="boardFieldWrap">
           <label>Секция (Board)</label>
           <select id="fBoard">
             <option value="TQCB">TQCB (Корп. облигации)</option>
@@ -695,33 +902,71 @@
           </select>
         </div>
       </div>
-      <div class="field-grid">
-        <div class="field">
-          <label>Тикер / ISIN (для монет не нужен)</label>
-          <input type="text" id="fTicker" placeholder="Необязательно" />
+
+      <!-- Standard Asset Position Fields -->
+      <div id="assetFieldsWrap">
+        <div class="field-grid">
+          <div class="field">
+            <label>Тикер / ISIN</label>
+            <input type="text" id="fTicker" />
+          </div>
+          <div class="field">
+            <label>Наименование *</label>
+            <input type="text" id="fName" />
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Количество (шт.) *</label>
+            <input type="number" id="fQty" step="1" />
+          </div>
+          <div class="field">
+            <label>Цена покупки (₽ за 1 шт.) *</label>
+            <input type="number" id="fAvgPrice" step="0.01" />
+          </div>
         </div>
         <div class="field">
-          <label>Наименование *</label>
-          <input type="text" id="fName" placeholder="Например: 5 рублей Николай II" />
+          <label>Текущая цена / цена продажи (₽ за 1 шт.)</label>
+          <input type="number" id="fCurrPrice" step="0.01" placeholder="Если пусто — равна цене покупки" />
         </div>
       </div>
-      <div class="field-grid">
-        <div class="field">
-          <label>Количество (шт.) *</label>
-          <input type="number" id="fQty" step="1" />
+
+      <!-- Cashflow (Пополнение / Вывод) Fields -->
+      <div id="cashflowFieldsWrap" style="display: none;">
+        <div style="font-size: 12px; color: var(--ink-sec); margin-bottom: 12px;">
+          Указывайте только внешние вводы (+) и выводы (−) личных денег. Покупки на купоны и дивиденды сюда вносить не нужно.
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Дата *</label>
+            <input type="date" id="mContribDate" />
+          </div>
+          <div class="field">
+            <label>Сумма, ₽ (+ ввод / − вывод) *</label>
+            <input type="number" id="mContribAmount" step="0.01" placeholder="Например: 50000" />
+          </div>
         </div>
         <div class="field">
-          <label>Цена покупки (₽ за 1 шт.) *</label>
-          <input type="number" id="fAvgPrice" step="0.01" />
+          <label>Брокер / Комментарий</label>
+          <input type="text" id="mContribNote" placeholder="Например: Сбер / Финам / Монеты" />
+        </div>
+        <div class="contrib-list" id="modalContribList" style="max-height: 170px;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; font-weight:600; margin-top:8px;">
+          <span>Всего вложено:</span>
+          <span id="modalContribTotal">0 ₽</span>
         </div>
       </div>
-      <div class="field">
-        <label>Текущая цена / цена продажи (₽ за 1 шт.)</label>
-        <input type="number" id="fCurrPrice" step="0.01" placeholder="Если пусто — равна цене покупки" />
-      </div>
-      <div class="modal-footer">
-        <button class="link-btn" onclick="closeModal()">Отмена</button>
-        <button class="pill-btn" onclick="savePosition()">Сохранить</button>
+
+      <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--ink-muted);">
+          <button type="button" class="mini-link" style="font-size: 12.5px; padding: 0;" onclick="exportBackup()">сохранить данные</button>
+          <span>·</span>
+          <button type="button" class="mini-link" style="font-size: 12.5px; padding: 0;" onclick="document.getElementById('importFile').click()">загрузить</button>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="link-btn" onclick="closeModal()">Отмена</button>
+          <button class="pill-btn" onclick="savePosition()">Сохранить</button>
+        </div>
       </div>
     </div>
   </div>
@@ -738,6 +983,7 @@
       { ticker: "RU000A10CZC7", name: "Аэрофьюэлз 002Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 1025.40, investedExact: 205080.00, currPrice: 988.00, faceValue: 1000 },
       { ticker: "RU000A10FX18", name: "Фабрика ПО 001Р-01", category: "Облигации", board: "TQCB", qty: 100, avgPrice: 989.40, investedExact: 98940.00, currPrice: 986.40, faceValue: 1000 },
       { ticker: "RU000A10D3S6", name: "Селигдар 001Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 989.52, investedExact: 197903.00, currPrice: 992.10, faceValue: 1000 },
+      { ticker: "", name: "Монеты Николая II", category: "Золото", board: "GOLD", qty: 5, avgPrice: 89983.52, investedExact: 449917.60, currPrice: 89983.52 },
       { ticker: "XAUUSD", name: "ГПЗ 7.78 (2025-2018)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 95475.25, investedExact: 381901.00, currPrice: 82658.17, pureGrams: 7.78, premium: 1.00 },
       { ticker: "TRNFP", name: "Транснефть (ап)", category: "Акции", board: "TQBR", qty: 200, avgPrice: 1251.50, investedExact: 250300.00, currPrice: 1365.00 },
       { ticker: "LKOH", name: "НК ЛУКОЙЛ", category: "Акции", board: "TQBR", qty: 40, avgPrice: 5380.66, investedExact: 215226.50, currPrice: 7190.00 },
@@ -758,17 +1004,35 @@
       { ticker: "OZPH", name: "Озон Фармацевтика", category: "Акции", board: "TQBR", qty: 4000, avgPrice: 48.91, investedExact: 195630.00, currPrice: 51.20 }
     ];
 
-    const STORAGE_KEY = "gsheets_portfolio_v10";
+    const DEFAULT_CONTRIBUTIONS = [
+      { id: 1, date: "2026-11-12", amount: 100000.00, note: "БКС (пополнение счета)" },
+      { id: 2, date: "2026-11-12", amount: 100000.00, note: "Т-Инвестиции (пополнение счета)" },
+      { id: 3, date: "2026-11-12", amount: 1452200.00, note: "Финам (пополнение счета)" },
+      { id: 4, date: "2026-11-12", amount: 4072677.55, note: "Сбер (пополнение счета)" },
+      { id: 5, date: "2026-11-12", amount: 381901.00, note: "Монеты ГПЗ" },
+      { id: 6, date: "2026-11-12", amount: 449917.60, note: "Монеты цари (Николая II)" }
+    ];
+
+    const STORAGE_KEY = "gsheets_portfolio_v11";
+    const CONTRIB_KEY = "gsheets_contributions_v1";
+    const HISTORY_KEY = "gsheets_history_v1";
+
     let holdings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_HOLDINGS);
+    let contributions = JSON.parse(localStorage.getItem(CONTRIB_KEY)) || structuredClone(DEFAULT_CONTRIBUTIONS);
+    let historySnapshots = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+
     let activeFilter = "all";
-    let plPeriod = "all";
+    let plPeriod = "today";
+
     function togglePlPeriod() {
       plPeriod = plPeriod === "all" ? "today" : "all";
       renderAll();
     }
+
     let sortCol = "value";
     let sortAsc = false;
     let pieChart = null;
+    let growthChart = null;
     let rates = { usdRub: 82.66, prevUsdRub: 82.66, xauUsd: 3997.80, prevXauUsd: 3997.80 };
 
     function fmtMoney(v) {
@@ -781,6 +1045,37 @@
 
     function persist() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(holdings));
+      localStorage.setItem(CONTRIB_KEY, JSON.stringify(contributions));
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(historySnapshots));
+    }
+
+    function getNetContributionsTotal() {
+      return contributions.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+    }
+
+    function getTodayIso() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function recordDailySnapshot(totalValue, totalCostBasis) {
+      const today = getTodayIso();
+      const netContrib = Number(getNetContributionsTotal().toFixed(2));
+      const valRounded = Number(totalValue.toFixed(2));
+      const costRounded = Number(totalCostBasis.toFixed(2));
+      const existingIdx = historySnapshots.findIndex(s => s.date === today);
+      if (existingIdx >= 0) {
+        historySnapshots[existingIdx].value = valRounded;
+        historySnapshots[existingIdx].costBasis = costRounded;
+        historySnapshots[existingIdx].contrib = netContrib;
+      } else {
+        historySnapshots.push({ date: today, value: valRounded, costBasis: costRounded, contrib: netContrib });
+      }
+      historySnapshots.sort((a, b) => a.date.localeCompare(b.date));
+      persist();
     }
 
     function renderAll() {
@@ -820,22 +1115,29 @@
         classes[item.category].value += val;
       });
 
+      const netContrib = getNetContributionsTotal();
+      recordDailySnapshot(totalValue, totalInvested);
+
       const isToday = plPeriod === "today";
-      const baseTotal = isToday ? totalPrevValue : totalInvested;
+      const baseTotal = isToday ? totalPrevValue : netContrib;
       const totalPl = totalValue - baseTotal;
       const totalPlPct = baseTotal > 0 ? (totalPl / baseTotal) * 100 : 0;
 
       document.getElementById("heroTotalVal").textContent = fmtMoney(totalValue);
       const plSign = totalPl > 0 ? "+" : "";
       const plClass = totalPl >= 0 ? "pos" : "neg";
-      const periodLabel = isToday ? "За сегодня" : "За все время";
-      const baseLabel = isToday ? `Вчера ${fmtMoney(totalPrevValue)}` : `Вложено ${fmtMoney(totalInvested)}`;
+      const periodWord = isToday ? "сегодня" : "все время";
+
+      const baseLabel = isToday
+        ? `Вчера ${fmtMoney(totalPrevValue)}`
+        : `Вложено ${fmtMoney(netContrib)}`;
 
       document.getElementById("heroSubLine").innerHTML =
-        `${baseLabel} · Результат <span class="${plClass}" style="font-weight:600;">${plSign}${fmtMoney(totalPl)} (${plSign}${fmtDecimal(totalPlPct, 2)}%)</span> <button type="button" class="${plClass}" onclick="togglePlPeriod()" title="Нажмите для переключения: За все время / За сегодня" style="font-family:inherit;font-size:14px;font-weight:500;background:none;border:none;border-bottom:1px dashed currentColor;padding:0 0 1px;margin-left:6px;cursor:pointer;">${periodLabel}</button>`;
+        `${baseLabel} · Результат <span class="${plClass}" style="font-weight:600;">${plSign}${fmtMoney(totalPl)} (${plSign}${fmtDecimal(totalPlPct, 2)}%)</span> <span style="margin-left:4px;">за <button type="button" class="${plClass}" onclick="togglePlPeriod()" title="Нажмите для переключения: все время / сегодня" style="font-family:inherit;font-size:15px;font-weight:500;background:none;border:none;border-bottom:1px dashed currentColor;padding:0 0 1px;cursor:pointer;">${periodWord}</button></span>`;
 
       renderAppleCompareColumns(classes, totalValue);
       renderPie(classes, totalValue);
+      renderGrowthChart(totalValue, totalInvested, netContrib);
       renderTable(totalValue);
     }
 
@@ -1047,12 +1349,43 @@
       renderAll();
     }
 
+    function renderModalContribList() {
+      const sorted = [...contributions].sort((a, b) => b.date.localeCompare(a.date));
+      const listEl = document.getElementById("modalContribList");
+      if (!listEl) return;
+      listEl.innerHTML = sorted.map(c => {
+        const isPos = Number(c.amount) >= 0;
+        return `
+          <div class="contrib-row">
+            <div class="contrib-meta">
+              <span class="contrib-note">${c.note || (isPos ? "Пополнение счёта" : "Вывод средств")}</span>
+              <span class="contrib-date">${formatShortDate(c.date)}</span>
+            </div>
+            <div class="contrib-right">
+              <strong class="${isPos ? "pos" : "neg"}">${isPos ? "+" : ""}${fmtDecimal(c.amount, 2)} ₽</strong>
+              <button class="mini-del" onclick="deleteContributionFromModal(${c.id})" title="Удалить">✕</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+      const totEl = document.getElementById("modalContribTotal");
+      if (totEl) totEl.textContent = fmtDecimal(getNetContributionsTotal(), 2) + " ₽";
+    }
+
+    function deleteContributionFromModal(id) {
+      contributions = contributions.filter(c => c.id !== id);
+      persist();
+      renderModalContribList();
+      renderAll();
+    }
+
     function openModal(idx = -1) {
       document.getElementById("editIndex").value = idx;
+      const catSelect = document.getElementById("fCategory");
       if (idx >= 0) {
         const item = holdings[idx];
         document.getElementById("modalTitle").textContent = "Редактировать позицию";
-        document.getElementById("fCategory").value = item.category;
+        catSelect.value = item.category;
         document.getElementById("fBoard").value = item.board;
         document.getElementById("fTicker").value = item.ticker;
         document.getElementById("fName").value = item.name;
@@ -1061,14 +1394,18 @@
         document.getElementById("fCurrPrice").value = item.currPrice;
       } else {
         document.getElementById("modalTitle").textContent = "Добавить позицию";
-        document.getElementById("fCategory").value = "Облигации";
+        catSelect.value = "Облигации";
         document.getElementById("fBoard").value = "TQCB";
         document.getElementById("fTicker").value = "";
         document.getElementById("fName").value = "";
         document.getElementById("fQty").value = "";
         document.getElementById("fAvgPrice").value = "";
         document.getElementById("fCurrPrice").value = "";
+        document.getElementById("mContribDate").value = getTodayIso();
+        document.getElementById("mContribAmount").value = "";
+        document.getElementById("mContribNote").value = "";
       }
+      syncBoardSelect();
       document.getElementById("editModal").classList.add("open");
     }
 
@@ -1079,14 +1416,55 @@
     function syncBoardSelect() {
       const c = document.getElementById("fCategory").value;
       const b = document.getElementById("fBoard");
-      if (c === "Облигации") b.value = "TQCB";
-      else if (c === "Акции") b.value = "TQBR";
-      else b.value = "GOLD";
+      const isCashflow = c === "Пополнение";
+
+      document.getElementById("boardFieldWrap").style.display = isCashflow ? "none" : "block";
+      document.getElementById("topCatGrid").style.gridTemplateColumns = isCashflow ? "1fr" : "1fr 1fr";
+      document.getElementById("assetFieldsWrap").style.display = isCashflow ? "none" : "block";
+      document.getElementById("cashflowFieldsWrap").style.display = isCashflow ? "block" : "none";
+
+      if (isCashflow) {
+        document.getElementById("modalTitle").textContent = "Пополнение или вывод средств";
+        if (!document.getElementById("mContribDate").value) {
+          document.getElementById("mContribDate").value = getTodayIso();
+        }
+        renderModalContribList();
+      } else {
+        const idx = parseInt(document.getElementById("editIndex").value, 10);
+        document.getElementById("modalTitle").textContent = idx >= 0 ? "Редактировать позицию" : "Добавить позицию";
+        if (c === "Облигации") b.value = "TQCB";
+        else if (c === "Акции") b.value = "TQBR";
+        else b.value = "GOLD";
+      }
     }
 
     function savePosition() {
       const idx = parseInt(document.getElementById("editIndex").value, 10);
       const category = document.getElementById("fCategory").value;
+
+      if (category === "Пополнение") {
+        const date = document.getElementById("mContribDate").value;
+        const amount = parseFloat(document.getElementById("mContribAmount").value);
+        const note = document.getElementById("mContribNote").value.trim();
+
+        if (!date || isNaN(amount) || amount === 0) {
+          alert("Укажите дату и ненулевую сумму пополнения (+) или вывода (−).");
+          return;
+        }
+
+        contributions.push({
+          id: Date.now(),
+          date,
+          amount: Number(amount.toFixed(2)),
+          note: note || (amount > 0 ? "Пополнение счёта" : "Вывод средств")
+        });
+
+        persist();
+        renderAll();
+        closeModal();
+        return;
+      }
+
       const board = document.getElementById("fBoard").value;
       const rawTicker = document.getElementById("fTicker").value.trim().toUpperCase();
       const rawName = document.getElementById("fName").value.trim();
@@ -1324,11 +1702,293 @@
       }
     }
 
+    
+    function formatShortDate(isoDate) {
+      if (!isoDate || isoDate.length < 10) return isoDate;
+      const [y, m, d] = isoDate.split("-");
+      return `${d}.${m}.${y.slice(2)}`;
+    }
+
+    function renderGrowthChart(currentTotalValue, currentCostBasis, currentNetContrib) {
+
+
+      const dateSet = new Set();
+      contributions.forEach(c => { if (c.date) dateSet.add(c.date); });
+      historySnapshots.forEach(s => { if (s.date) dateSet.add(s.date); });
+      const sortedDates = Array.from(dateSet).sort();
+
+      const snapMap = {};
+      historySnapshots.forEach(s => { snapMap[s.date] = s; });
+
+      let runningContrib = 0;
+      const contribByDate = {};
+      [...contributions].sort((a, b) => a.date.localeCompare(b.date)).forEach(c => {
+        runningContrib += Number(c.amount) || 0;
+        contribByDate[c.date] = runningContrib;
+      });
+
+      let lastKnownContrib = 0;
+      let lastKnownVal = null;
+      let lastKnownCost = null;
+
+      const labels = [];
+      const valueSeries = [];
+      const costSeries = [];
+      const contribSeries = [];
+
+      sortedDates.forEach(d => {
+        if (contribByDate[d] !== undefined) {
+          lastKnownContrib = contribByDate[d];
+        }
+        if (snapMap[d] !== undefined) {
+          lastKnownVal = snapMap[d].value;
+          lastKnownCost = snapMap[d].costBasis !== undefined ? snapMap[d].costBasis : currentCostBasis;
+        }
+        labels.push(formatShortDate(d));
+        contribSeries.push(Math.round(lastKnownContrib));
+        costSeries.push(lastKnownCost !== null ? Math.round(lastKnownCost) : Math.round(currentCostBasis));
+        valueSeries.push(lastKnownVal !== null ? Math.round(lastKnownVal) : Math.round(lastKnownContrib));
+      });
+
+      // Compute dynamic Y-axis floor so wave contours are expressive while staying grounded
+      const allNums = [...valueSeries, ...costSeries, ...contribSeries].filter(n => n > 0);
+      const minVal = allNums.length ? Math.min(...allNums) : 0;
+      const maxVal = allNums.length ? Math.max(...allNums) : 1000000;
+      const span = Math.max(maxVal - minVal, maxVal * 0.12);
+      const yMin = Math.max(0, Math.floor((minVal - span * 0.45) / 100000) * 100000);
+
+      const ctx = document.getElementById("growthChart").getContext("2d");
+      if (growthChart) {
+        growthChart.data.labels = labels;
+        growthChart.data.datasets[0].data = valueSeries;
+        growthChart.data.datasets[1].data = costSeries;
+        growthChart.data.datasets[2].data = contribSeries;
+        growthChart.options.scales.y.min = yMin;
+        growthChart.update();
+        return;
+      }
+
+      // Cohesive soft-wave palette synced with Pie Chart (#0071e3 Blue, #34a853 Green, #e67e22 Orange)
+      growthChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Текущая стоимость",
+              data: valueSeries,
+              pillColor: "#0071e3",
+              borderColor: "#ffffff",
+              borderWidth: 1.8,
+              backgroundColor: "rgba(0, 113, 227, 0.34)",
+              pointRadius: labels.length <= 2 ? 4 : 0,
+              pointHoverRadius: 5,
+              pointBackgroundColor: "#0071e3",
+              fill: "start",
+              tension: 0.42,
+              order: 3
+            },
+            {
+              label: "Себестоимость бумаг",
+              data: costSeries,
+              pillColor: "#34a853",
+              borderColor: "#ffffff",
+              borderWidth: 1.8,
+              backgroundColor: "rgba(52, 168, 83, 0.42)",
+              pointRadius: labels.length <= 2 ? 4 : 0,
+              pointHoverRadius: 5,
+              pointBackgroundColor: "#34a853",
+              fill: "start",
+              tension: 0.42,
+              order: 2
+            },
+            {
+              label: "Вложено денег",
+              data: contribSeries,
+              pillColor: "#e67e22",
+              borderColor: "#ffffff",
+              borderWidth: 1.8,
+              backgroundColor: "rgba(230, 126, 34, 0.48)",
+              pointRadius: labels.length <= 2 ? 4 : 0,
+              pointHoverRadius: 5,
+              pointBackgroundColor: "#e67e22",
+              fill: "start",
+              tension: 0.42,
+              order: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "index",
+            intersect: false
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "rgba(29, 29, 31, 0.94)",
+              titleFont: { size: 12, weight: "600" },
+              bodyFont: { size: 12 },
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: {
+                label: c => ` ${c.dataset.label}: ${fmtMoney(c.raw || 0)}`,
+                afterBody: items => {
+                  const valItem = items.find(i => i.dataset.label === "Текущая стоимость");
+                  const costItem = items.find(i => i.dataset.label === "Себестоимость бумаг");
+                  const invItem = items.find(i => i.dataset.label === "Вложено денег");
+                  if (valItem && costItem && invItem) {
+                    const val = valItem.raw || 0;
+                    const cost = costItem.raw || 0;
+                    const inv = invItem.raw || 0;
+                    const totalDiff = val - inv;
+                    const reinvDiff = cost - inv;
+                    const tSign = totalDiff > 0 ? "+" : "";
+                    const rSign = reinvDiff > 0 ? "+" : "";
+                    return [
+                      ` ──────────────`,
+                      ` Реинвест (купоны/див./маржа): ${rSign}${fmtMoney(reinvDiff)}`,
+                      ` Итоговый результат: ${tSign}${fmtMoney(totalDiff)}`
+                    ];
+                  }
+                  return [];
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              border: { display: true, color: "#d2d2d7" },
+              ticks: {
+                color: "#6e6e73",
+                font: { size: 11.5, weight: "500" },
+                padding: 8
+              }
+            },
+            y: {
+              min: yMin,
+              display: false,
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+    }
+
+    function openContribModal() {
+      document.getElementById("cDate").value = getTodayIso();
+      document.getElementById("cAmount").value = "";
+      document.getElementById("cNote").value = "";
+      renderContribList();
+      document.getElementById("contribModal").classList.add("open");
+    }
+
+    function closeContribModal() {
+      document.getElementById("contribModal").classList.remove("open");
+    }
+
+    function renderContribList() {
+      const sorted = [...contributions].sort((a, b) => b.date.localeCompare(a.date));
+      const listEl = document.getElementById("contribList");
+      listEl.innerHTML = sorted.map(c => {
+        const isPos = Number(c.amount) >= 0;
+        return `
+          <div class="contrib-row">
+            <div class="contrib-meta">
+              <span class="contrib-note">${c.note || (isPos ? "Пополнение счёта" : "Вывод средств")}</span>
+              <span class="contrib-date">${formatShortDate(c.date)}</span>
+            </div>
+            <div class="contrib-right">
+              <strong class="${isPos ? "pos" : "neg"}">${isPos ? "+" : ""}${fmtDecimal(c.amount, 2)} ₽</strong>
+              <button class="mini-del" onclick="deleteContribution(${c.id})" title="Удалить">✕</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("contribTotalLabel").textContent = fmtDecimal(getNetContributionsTotal(), 2) + " ₽";
+    }
+
+    function addContribution() {
+      const date = document.getElementById("cDate").value;
+      const amount = parseFloat(document.getElementById("cAmount").value);
+      const note = document.getElementById("cNote").value.trim();
+
+      if (!date || isNaN(amount) || amount === 0) {
+        alert("Укажите дату и ненулевую сумму пополнения или вывода.");
+        return;
+      }
+
+      contributions.push({
+        id: Date.now(),
+        date,
+        amount: Number(amount.toFixed(2)),
+        note: note || (amount > 0 ? "Пополнение счёта" : "Вывод средств")
+      });
+
+      document.getElementById("cAmount").value = "";
+      document.getElementById("cNote").value = "";
+      persist();
+      renderContribList();
+      renderAll();
+    }
+
+    function deleteContribution(id) {
+      contributions = contributions.filter(c => c.id !== id);
+      persist();
+      renderContribList();
+      renderAll();
+    }
+
+    function exportBackup() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        holdings,
+        contributions,
+        historySnapshots
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `portfolio-backup-${getTodayIso()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackup(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data.holdings)) holdings = data.holdings;
+          if (Array.isArray(data.contributions)) contributions = data.contributions;
+          if (Array.isArray(data.historySnapshots)) historySnapshots = data.historySnapshots;
+          persist();
+          renderAll();
+          alert("Данные портфеля и история успешно восстановлены.");
+        } catch (err) {
+          alert("Не удалось прочитать файл резервной копии.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
     (async function bootstrap() {
       if (!Array.isArray(holdings) || holdings.length === 0) {
         holdings = structuredClone(DEFAULT_HOLDINGS);
-        persist();
       }
+      if (!Array.isArray(contributions) || contributions.length === 0) {
+        contributions = structuredClone(DEFAULT_CONTRIBUTIONS);
+      }
+      persist();
       renderAll();
       refreshMarketData();
     })();

@@ -1,0 +1,381 @@
+{
+  "exportedAt": "2026-11-12T19:34:41.153Z",
+  "holdings": [
+    {
+      "ticker": "SU26247RMFS5",
+      "name": "ОФЗ 26247",
+      "category": "Облигации",
+      "board": "TQOB",
+      "qty": 400,
+      "avgPrice": 885.35,
+      "investedExact": 354141,
+      "currPrice": 796.4,
+      "faceValue": 1000,
+      "prevPrice": 796.79
+    },
+    {
+      "ticker": "SU26248RMFS3",
+      "name": "ОФЗ 26248",
+      "category": "Облигации",
+      "board": "TQOB",
+      "qty": 400,
+      "avgPrice": 884.5,
+      "investedExact": 353798,
+      "currPrice": 792.9,
+      "faceValue": 1000,
+      "prevPrice": 793.98
+    },
+    {
+      "ticker": "RU000A10C8F3",
+      "name": "Брусника 002P-04",
+      "category": "Облигации",
+      "board": "TQCB",
+      "qty": 409,
+      "avgPrice": 992.54,
+      "investedExact": 405947.62,
+      "currPrice": 889.4,
+      "faceValue": 1000,
+      "prevPrice": 896
+    },
+    {
+      "ticker": "RU000A10DA74",
+      "name": "Эталон-Финанс 002P-04",
+      "category": "Облигации",
+      "board": "TQCB",
+      "qty": 335,
+      "avgPrice": 1007.27,
+      "investedExact": 337433.97,
+      "currPrice": 909.1,
+      "faceValue": 1000,
+      "prevPrice": 913.5
+    },
+    {
+      "ticker": "RU000A10CM06",
+      "name": "АПРИ БО-002Р-11",
+      "category": "Облигации",
+      "board": "TQCB",
+      "qty": 100,
+      "avgPrice": 1015.74,
+      "investedExact": 101574,
+      "currPrice": 686.4,
+      "faceValue": 1000,
+      "prevPrice": 701
+    },
+    {
+      "ticker": "RU000A10EST2",
+      "name": "Эталон-Финанс 002P-05",
+      "category": "Облигации",
+      "board": "TQCB",
+      "qty": 400,
+      "avgPrice": 1004.7,
+      "investedExact": 401878.21,
+      "currPrice": 851.6,
+      "faceValue": 1000,
+      "prevPrice": 861.6
+    },
+    {
+      "ticker": "RU000A10ERC0",
+      "name": "АПРИ БО-002Р-14",
+      "category": "Облигации",
+      "board": "TQCB",
+      "qty": 200,
+      "avgPrice": 1000.99,
+      "investedExact": 200197.57,
+      "currPrice": 662.9,
+      "faceValue": 1000,
+      "prevPrice": 682.8
+    },
+    {
+      "ticker": "RU000A10CZC7",
+      "name": "Аэрофьюэлз 002Р-06",
+      "category": "Облигации",
+      "board": "TQCB",
+      "qty": 200,
+      "avgPrice": 1025.4,
+      "investedExact": 205080,
+      "currPrice": 1000.4,
+      "faceValue": 1000,
+      "prevPrice": 999.9
+    },
+    {
+      "ticker": "RU000A10FX18",
+      "name": "Фабрика ПО 001Р-01",
+      "category": "Облигации",
+      "board": "TQCB",
+      "qty": 100,
+      "avgPrice": 989.4,
+      "investedExact": 98940,
+      "currPrice": 979.5,
+      "faceValue": 1000,
+      "prevPrice": 979.8
+    },
+    {
+      "ticker": "RU000A10D3S6",
+      "name": "Селигдар 001Р-06",
+      "category": "Облигации",
+      "board": "TQCB",
+      "qty": 200,
+      "avgPrice": 989.52,
+      "investedExact": 197903,
+      "currPrice": 999.2,
+      "faceValue": 1000,
+      "prevPrice": 998.3
+    },
+    {
+      "ticker": "",
+      "name": "Монеты Николая II",
+      "category": "Золото",
+      "board": "GOLD",
+      "qty": 5,
+      "avgPrice": 89983.52,
+      "investedExact": 449917.6,
+      "currPrice": 89983.52
+    },
+    {
+      "ticker": "XAUUSD",
+      "name": "ГПЗ 7.78 (2025-2018)",
+      "category": "Золото",
+      "board": "GOLD",
+      "qty": 4,
+      "avgPrice": 95475.25,
+      "investedExact": 381901,
+      "currPrice": 80795,
+      "pureGrams": 7.78,
+      "premium": 1,
+      "prevPrice": 83184
+    },
+    {
+      "ticker": "TRNFP",
+      "name": "Транснефть (ап)",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 200,
+      "avgPrice": 1251.5,
+      "investedExact": 250300,
+      "currPrice": 1065.6,
+      "prevPrice": 1049.8
+    },
+    {
+      "ticker": "LKOH",
+      "name": "НК ЛУКОЙЛ",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 40,
+      "avgPrice": 5380.66,
+      "investedExact": 215226.5,
+      "currPrice": 6052,
+      "prevPrice": 6029
+    },
+    {
+      "ticker": "NVTK",
+      "name": "НОВАТЭК",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 300,
+      "avgPrice": 1002.41,
+      "investedExact": 300724.3,
+      "currPrice": 1135.1,
+      "prevPrice": 1133.9
+    },
+    {
+      "ticker": "MGNT",
+      "name": "Магнит",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 60,
+      "avgPrice": 3478.45,
+      "investedExact": 208707,
+      "currPrice": 2007,
+      "prevPrice": 2009
+    },
+    {
+      "ticker": "X5",
+      "name": "Корп. центр ИКС 5",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 183,
+      "avgPrice": 2727.19,
+      "investedExact": 499076.1,
+      "currPrice": 2377.5,
+      "prevPrice": 2364
+    },
+    {
+      "ticker": "BELU",
+      "name": "НоваБев Групп",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 450,
+      "avgPrice": 431.54,
+      "investedExact": 194191.6,
+      "currPrice": 272.2,
+      "prevPrice": 271.2
+    },
+    {
+      "ticker": "NMTP",
+      "name": "НМТП",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 20000,
+      "avgPrice": 8.81,
+      "investedExact": 176200,
+      "currPrice": 7.02,
+      "prevPrice": 7
+    },
+    {
+      "ticker": "PLZL",
+      "name": "Полюс",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 60,
+      "avgPrice": 2302,
+      "investedExact": 138120,
+      "currPrice": 1108.2,
+      "prevPrice": 1111.2
+    },
+    {
+      "ticker": "NLMK",
+      "name": "НЛМК",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 600,
+      "avgPrice": 118.13,
+      "investedExact": 70880,
+      "currPrice": 76.82,
+      "prevPrice": 76.6
+    },
+    {
+      "ticker": "GMKN",
+      "name": "ГМК Норильский никель",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 860,
+      "avgPrice": 122.84,
+      "investedExact": 105645,
+      "currPrice": 120.84,
+      "prevPrice": 122.22
+    },
+    {
+      "ticker": "CHMF",
+      "name": "Северсталь",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 120,
+      "avgPrice": 992.82,
+      "investedExact": 119138.8,
+      "currPrice": 712.8,
+      "prevPrice": 711.8
+    },
+    {
+      "ticker": "SBERP",
+      "name": "Сбербанк (ап)",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 1100,
+      "avgPrice": 295.41,
+      "investedExact": 324948.89,
+      "currPrice": 299,
+      "prevPrice": 298.51
+    },
+    {
+      "ticker": "T",
+      "name": "Т-Технологии МКПАО ао",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 400,
+      "avgPrice": 319.21,
+      "investedExact": 127682,
+      "currPrice": 290.4,
+      "prevPrice": 281.62
+    },
+    {
+      "ticker": "MOEX",
+      "name": "Московская Биржа",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 500,
+      "avgPrice": 170.69,
+      "investedExact": 85345,
+      "currPrice": 165.72,
+      "prevPrice": 164.93
+    },
+    {
+      "ticker": "YDEX",
+      "name": "МКПАО Яндекс",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 50,
+      "avgPrice": 4385.2,
+      "investedExact": 219260,
+      "currPrice": 3437,
+      "prevPrice": 3442.5
+    },
+    {
+      "ticker": "OZON",
+      "name": "МКПАО Озон",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 30,
+      "avgPrice": 4534.83,
+      "investedExact": 136045,
+      "currPrice": 3802.5,
+      "prevPrice": 3828.5
+    },
+    {
+      "ticker": "OZPH",
+      "name": "Озон Фармацевтика",
+      "category": "Акции",
+      "board": "TQBR",
+      "qty": 4000,
+      "avgPrice": 48.91,
+      "investedExact": 195630,
+      "currPrice": 47.01,
+      "prevPrice": 46.85
+    }
+  ],
+  "contributions": [
+    {
+      "id": 1,
+      "date": "2026-11-12",
+      "amount": 100000,
+      "note": "БКС (пополнение счета)"
+    },
+    {
+      "id": 2,
+      "date": "2026-11-12",
+      "amount": 100000,
+      "note": "Т-Инвестиции (пополнение счета)"
+    },
+    {
+      "id": 3,
+      "date": "2026-11-12",
+      "amount": 1452200,
+      "note": "Финам (пополнение счета)"
+    },
+    {
+      "id": 4,
+      "date": "2026-11-12",
+      "amount": 4072677.55,
+      "note": "Сбер (пополнение счета)"
+    },
+    {
+      "id": 5,
+      "date": "2026-11-12",
+      "amount": 381901,
+      "note": "Монеты ГПЗ"
+    },
+    {
+      "id": 6,
+      "date": "2026-11-12",
+      "amount": 449917.6,
+      "note": "Монеты цари (Николая II)"
+    }
+  ],
+  "historySnapshots": [
+    {
+      "date": "2026-11-12",
+      "value": 6034910.6,
+      "contrib": 6556696.15,
+      "costBasis": 6855832.16
+    }
+  ]
+}
