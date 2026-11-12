@@ -3,35 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Инвестиционный портфель — Цель: Недвижимость в Москве</title>
+  <title>Портфель активов — Учёт и распределение</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg-page: #f4f6f9;
-      --bg-card: #ffffff;
-      --bg-subtle: #f8fafc;
-      --bg-hover: #f1f5f9;
-      --border: #e2e8f0;
-      --border-strong: #cbd5e1;
-      --text-main: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #64748b;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --primary-soft: #eff6ff;
-      --success: #059669;
-      --success-soft: #ecfdf5;
-      --danger: #dc2626;
-      --danger-soft: #fef2f2;
-      --warning: #d97706;
-      --warning-soft: #fffbeb;
-      --gold: #b45309;
-      --gold-soft: #fef3c7;
-      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
-      --radius-lg: 14px;
-      --radius-md: 10px;
-      --radius-sm: 6px;
+      --bg: #ffffff;
+      --bg-alt: #f7f7f5;
+      --bg-head: #f2f2ef;
+      --border: #dcdcd6;
+      --border-dark: #b8b8b0;
+      --ink: #181816;
+      --ink-sec: #52524e;
+      --ink-muted: #787872;
+      --accent: #1e3a5f;
+      --accent-hover: #142842;
+      --pos: #15653e;
+      --neg: #b91c1c;
+      --bond-color: #1e3a5f;
+      --stock-color: #2e6f40;
+      --gold-color: #a16207;
     }
 
     * {
@@ -41,741 +31,616 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Inter, sans-serif;
-      background-color: var(--bg-page);
-      color: var(--text-main);
-      line-height: 1.5;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.45;
       -webkit-font-smoothing: antialiased;
     }
 
-    .container {
-      max-width: 1360px;
+    .wrap {
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 24px 20px 60px;
+      padding: 28px 24px 64px;
     }
 
-    /* Top Bar */
-    .header {
+    /* Header */
+    .top-bar {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      align-items: center;
-      gap: 16px;
+      align-items: flex-end;
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--ink);
       margin-bottom: 20px;
+      gap: 16px;
     }
 
-    .header-title h1 {
-      font-size: 24px;
+    .title-block h1 {
+      font-size: 22px;
       font-weight: 700;
-      color: var(--text-main);
       letter-spacing: -0.02em;
+      color: var(--ink);
     }
 
-    .header-title p {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 2px;
+    .title-block .meta {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-top: 3px;
     }
 
-    .header-actions {
+    .toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
 
-    .btn {
+    button, .file-btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 13px;
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--border-dark);
+      border-radius: 3px;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 9px 15px;
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: var(--radius-md);
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      background: var(--bg-card);
-      color: var(--text-main);
-      border-color: var(--border-strong);
-      box-shadow: var(--shadow-sm);
     }
 
-    .btn:hover {
-      background: var(--bg-subtle);
-      border-color: #94a3b8;
+    button:hover, .file-btn:hover {
+      background: var(--bg-alt);
+      border-color: var(--ink);
     }
 
-    .btn-primary {
-      background: var(--primary);
+    button.primary {
+      background: var(--ink);
       color: #ffffff;
-      border-color: var(--primary);
+      border-color: var(--ink);
     }
 
-    .btn-primary:hover {
-      background: var(--primary-hover);
-      border-color: var(--primary-hover);
+    button.primary:hover {
+      background: #333330;
     }
 
-    .btn-success {
-      background: var(--success);
-      color: #ffffff;
-      border-color: var(--success);
-    }
-
-    .btn-success:hover {
-      background: #047857;
-    }
-
-    /* Market Ticker Strip */
-    .ticker-bar {
+    /* Rates strip */
+    .rates-strip {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      background: var(--bg-card);
+      align-items: center;
+      padding: 9px 14px;
+      background: var(--bg-alt);
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 12px 18px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow-sm);
-      font-size: 13px;
+      margin-bottom: 22px;
+      font-size: 12.5px;
+      gap: 14px;
     }
 
-    .ticker-items {
+    .rates-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
-      align-items: center;
+      gap: 22px;
     }
 
-    .ticker-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .ticker-label {
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .ticker-value {
-      font-weight: 700;
-      color: var(--text-main);
+    .rates-list span strong {
       font-variant-numeric: tabular-nums;
-    }
-
-    .badge-gold {
-      background: var(--gold-soft);
-      color: var(--gold);
-      padding: 2px 8px;
-      border-radius: 99px;
       font-weight: 600;
-      font-size: 12px;
     }
 
-    .sync-status {
-      font-size: 12px;
-      color: var(--text-muted);
+    #syncStatus {
+      color: var(--ink-muted);
     }
 
-    /* KPI Summary Cards */
-    .kpi-grid {
+    /* Summary & Allocation Block */
+    .overview-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
     }
 
-    .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 18px 20px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .kpi-label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .kpi-value {
-      font-size: 26px;
-      font-weight: 700;
-      color: var(--text-main);
-      letter-spacing: -0.02em;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .kpi-sub {
-      margin-top: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .text-pos { color: var(--success); }
-    .text-neg { color: var(--danger); }
-    .text-muted { color: var(--text-muted); }
-
-    /* Goal & Target Allocation Section */
-    .goal-grid {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 960px) {
-      .goal-grid {
+    @media (max-width: 900px) {
+      .overview-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    .card {
-      background: var(--bg-card);
+    .panel {
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
+      background: var(--bg);
       padding: 20px;
-      box-shadow: var(--shadow-sm);
     }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .card-title {
-      font-size: 16px;
+    .panel-title {
+      font-size: 12px;
       font-weight: 700;
-      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-sec);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .progress-wrapper {
-      margin-bottom: 18px;
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
     }
 
-    .progress-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      margin-bottom: 6px;
-      font-weight: 600;
+    @media (max-width: 600px) {
+      .metrics-row {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .progress-track {
+    .metric-item .label {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-item .val {
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    .metric-item .sub {
+      font-size: 12px;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pos { color: var(--pos); }
+    .neg { color: var(--neg); }
+
+    /* Class Breakdown Table inside panel */
+    .class-table {
       width: 100%;
-      height: 12px;
-      background: #e2e8f0;
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #2563eb, #059669);
-      border-radius: 99px;
-      transition: width 0.4s ease;
-    }
-
-    .allocation-bars {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .alloc-row {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .alloc-meta {
-      display: flex;
-      justify-content: space-between;
+      border-collapse: collapse;
       font-size: 13px;
     }
 
-    .alloc-bar-bg {
-      height: 8px;
-      background: #f1f5f9;
-      border-radius: 99px;
-      overflow: hidden;
-      position: relative;
+    .class-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .alloc-bar-fill {
-      height: 100%;
-      border-radius: 99px;
+    .class-table td {
+      padding: 9px 8px;
+      border-bottom: 1px solid var(--border);
+      font-variant-numeric: tabular-nums;
     }
 
-    .chart-box {
-      position: relative;
-      height: 220px;
+    .class-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-right: 7px;
+      vertical-align: middle;
+    }
+
+    .chart-wrap {
+      height: 225px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Filter Tabs & Search */
-    .table-controls {
+    /* Controls */
+    .controls-bar {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
-    .tabs {
+    .filter-group {
       display: flex;
-      gap: 6px;
-      background: #e2e8f0;
-      padding: 4px;
-      border-radius: var(--radius-md);
+      gap: 0;
     }
 
-    .tab-btn {
-      padding: 6px 14px;
+    .filter-btn {
+      border-radius: 0;
+      margin-left: -1px;
+      background: var(--bg);
+      color: var(--ink-sec);
+    }
+
+    .filter-btn:first-child {
+      margin-left: 0;
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+
+    .filter-btn:last-child {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+
+    .filter-btn.active {
+      background: var(--ink);
+      color: #ffffff;
+      border-color: var(--ink);
+      z-index: 1;
+    }
+
+    .search-box {
+      padding: 7px 12px;
       font-size: 13px;
-      font-weight: 600;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      border-radius: 7px;
-      cursor: pointer;
-      transition: all 0.15s;
+      border: 1px solid var(--border-dark);
+      border-radius: 3px;
+      min-width: 250px;
+      font-family: inherit;
     }
 
-    .tab-btn.active {
-      background: var(--bg-card);
-      color: var(--text-main);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .search-input {
-      padding: 8px 14px;
-      font-size: 13px;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-md);
-      background: var(--bg-card);
-      color: var(--text-main);
-      min-width: 240px;
+    .search-box:focus {
       outline: none;
+      border-color: var(--ink);
     }
 
-    .search-input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
-    /* Table */
-    .table-container {
-      background: var(--bg-card);
+    /* Main Holdings Table */
+    .table-wrap {
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
       overflow-x: auto;
     }
 
-    table {
+    table.holdings {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      text-align: left;
     }
 
-    thead th {
-      background: var(--bg-subtle);
-      color: var(--text-secondary);
-      font-weight: 600;
-      font-size: 12px;
+    table.holdings thead th {
+      background: var(--bg-head);
+      color: var(--ink-sec);
+      font-size: 11.5px;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.03em;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-dark);
+      text-align: left;
       white-space: nowrap;
       cursor: pointer;
       user-select: none;
     }
 
-    thead th:hover {
-      color: var(--text-main);
-      background: #f1f5f9;
+    table.holdings thead th:hover {
+      color: var(--ink);
+      background: #e8e8e4;
     }
 
-    tbody td {
-      padding: 12px 14px;
+    table.holdings tbody td {
+      padding: 10px 12px;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
       font-variant-numeric: tabular-nums;
     }
 
-    tbody tr:last-child td {
-      border-bottom: none;
+    table.holdings tbody tr:hover {
+      background: var(--bg-alt);
     }
 
-    tbody tr:hover {
-      background: var(--bg-hover);
+    table.holdings tfoot td {
+      padding: 11px 12px;
+      background: var(--bg-head);
+      font-weight: 700;
+      border-top: 1px solid var(--border-dark);
+      font-variant-numeric: tabular-nums;
     }
 
     .num {
-      text-align: right;
+      text-align: right !important;
     }
 
-    .asset-name {
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .asset-ticker {
+    .ticker-sub {
+      display: block;
       font-size: 11px;
-      color: var(--text-muted);
+      color: var(--ink-muted);
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     }
 
-    .pill {
-      display: inline-block;
-      padding: 3px 9px;
-      border-radius: 99px;
-      font-size: 11px;
+    .class-tag {
+      font-size: 11.5px;
       font-weight: 600;
+      padding: 2px 7px;
+      border: 1px solid var(--border);
+      background: var(--bg-alt);
+      display: inline-block;
     }
 
-    .pill-bond { background: #eff6ff; color: #1d4ed8; }
-    .pill-stock { background: #ecfdf5; color: #047857; }
-    .pill-gold { background: #fef3c7; color: #b45309; }
+    .row-actions {
+      display: inline-flex;
+      gap: 4px;
+      justify-content: flex-end;
+    }
 
-    .action-icon-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      border-radius: 6px;
+    .icon-btn {
       padding: 4px 8px;
       font-size: 12px;
-      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--ink-sec);
+      border-radius: 2px;
     }
 
-    .action-icon-btn:hover {
-      background: var(--danger-soft);
-      color: var(--danger);
-      border-color: #fecaca;
+    .icon-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .icon-btn.del:hover {
+      border-color: var(--neg);
+      color: var(--neg);
+      background: #fef2f2;
     }
 
     /* Modal */
-    .modal-backdrop {
+    .modal-bg {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.45);
-      backdrop-filter: blur(2px);
+      background: rgba(24, 24, 22, 0.45);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 999;
       padding: 16px;
     }
 
-    .modal-backdrop.open {
+    .modal-bg.open {
       display: flex;
     }
 
-    .modal {
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
+    .modal-box {
+      background: var(--bg);
+      border: 1px solid var(--ink);
       width: 100%;
-      max-width: 460px;
-      padding: 24px;
-      box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15);
+      max-width: 440px;
+      padding: 22px;
     }
 
-    .modal h2 {
-      font-size: 18px;
+    .modal-box h2 {
+      font-size: 17px;
+      font-weight: 700;
       margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .form-group {
-      margin-bottom: 14px;
+    .field {
+      margin-bottom: 13px;
     }
 
-    .form-group label {
+    .field label {
       display: block;
       font-size: 12px;
       font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 5px;
+      color: var(--ink-sec);
+      margin-bottom: 4px;
     }
 
-    .form-group input,
-    .form-group select {
+    .field input, .field select {
       width: 100%;
-      padding: 9px 12px;
-      font-size: 14px;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-md);
-      background: var(--bg-card);
-      color: var(--text-main);
+      padding: 8px 10px;
+      font-size: 13.5px;
+      border: 1px solid var(--border-dark);
+      border-radius: 2px;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--ink);
     }
 
-    .form-row {
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--ink);
+    }
+
+    .field-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
 
-    .modal-actions {
+    .modal-footer {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Header -->
-    <div class="header">
-      <div class="header-title">
-        <h1>Инвестиционный портфель</h1>
-        <p>Накопление капитала на недвижимость в Москве • Целевой баланс: 60% Облигации / 25% Акции / 15% Золото</p>
+  <div class="wrap">
+    <!-- Top Header -->
+    <div class="top-bar">
+      <div class="title-block">
+        <h1>Портфель активов</h1>
+        <div class="meta">Учёт позиций, рыночная оценка MOEX и распределение по классам активов</div>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-primary" id="btnRefresh" onclick="refreshMarketData()">
-          ↻ Обновить цены MOEX
-        </button>
-        <button class="btn btn-success" onclick="openTradeModal()">
-          + Добавить сделку
-        </button>
-        <button class="btn" onclick="exportCSV()">
-          ↓ Экспорт CSV
-        </button>
-        <label class="btn" style="cursor: pointer;">
-          ↑ Импорт CSV
-          <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)" />
+      <div class="toolbar">
+        <button class="primary" id="btnRefresh" onclick="refreshMarketData()">Обновить котировки MOEX</button>
+        <button onclick="openModal()">+ Добавить позицию</button>
+        <button onclick="exportCSV()">Экспорт CSV</button>
+        <label class="file-btn">
+          Импорт CSV
+          <input type="file" id="csvInput" accept=".csv" style="display:none" onchange="importCSV(event)" />
         </label>
-        <button class="btn" onclick="resetToDefault()" title="Сбросить к исходному портфелю">
-          Сброс
-        </button>
+        <button onclick="resetPortfolio()">Сбросить к исходным</button>
       </div>
     </div>
 
-    <!-- Market Ticker Strip -->
-    <div class="ticker-bar">
-      <div class="ticker-items">
-        <div class="ticker-item">
-          <span class="ticker-label">Золото XAU/USD:</span>
-          <span class="ticker-value" id="xauUsdVal">$2,740.00</span>
-        </div>
-        <div class="ticker-item">
-          <span class="ticker-label">Курс USD/RUB:</span>
-          <span class="ticker-value" id="usdRubVal">97.50 ₽</span>
-        </div>
-        <div class="ticker-item">
-          <span class="ticker-label">1 г чистого золота (999):</span>
-          <span class="badge-gold" id="goldGramRub">8 589 ₽/г</span>
-        </div>
-        <div class="ticker-item">
-          <span class="ticker-label">Прогноз купонов + див. (2027):</span>
-          <span class="ticker-value text-pos">~660 230 ₽/год (55 020 ₽/мес)</span>
-        </div>
+    <!-- Market Strip -->
+    <div class="rates-strip">
+      <div class="rates-list">
+        <span>Курс USD/RUB (ЦБ): <strong id="usdRubText">97.50 ₽</strong></span>
+        <span>Золото XAU/USD: <strong id="xauUsdText">$2,740.00</strong></span>
+        <span>1 г золота (999): <strong id="goldGramText">8 589 ₽</strong></span>
+        <span>Всего позиций: <strong id="positionsCountText">29</strong></span>
       </div>
-      <div class="sync-status" id="syncStatus">Данные актуальны (локальный кэш)</div>
+      <div id="syncStatus">Локальные данные</div>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">Общая стоимость портфеля</div>
-        <div class="kpi-value" id="kpiTotalValue">0 ₽</div>
-        <div class="kpi-sub text-muted" id="kpiInvestedSub">Вложено: 0 ₽</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Нереализованная прибыль (P/L)</div>
-        <div class="kpi-value" id="kpiTotalPL">0 ₽</div>
-        <div class="kpi-sub" id="kpiTotalPLPct">0.00%</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Облигации (защитный слой)</div>
-        <div class="kpi-value" id="kpiBondsValue">0 ₽</div>
-        <div class="kpi-sub text-muted" id="kpiBondsShare">Доля: 0.0% (цель 60%)</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Акции и Физическое золото</div>
-        <div class="kpi-value" id="kpiRiskValue">0 ₽</div>
-        <div class="kpi-sub text-muted" id="kpiRiskShare">Акции: 0% • Золото: 0%</div>
-      </div>
-    </div>
-
-    <!-- Goal & Allocation Grid -->
-    <div class="goal-grid">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Движение к целевой структуре и цели (Квартира в Москве)</div>
-          <span style="font-size: 12px; color: var(--text-muted);" id="goalTargetLabel">Цель: 15 000 000 ₽</span>
-        </div>
-
-        <div class="progress-wrapper">
-          <div class="progress-labels">
-            <span>Накоплено на первоначальный взнос / покупку</span>
-            <span id="goalPercentText">0.0%</span>
+    <!-- Overview & Class Distribution -->
+    <div class="overview-grid">
+      <div class="panel">
+        <div class="panel-title">Сводка и распределение по классам активов</div>
+        <div class="metrics-row">
+          <div class="metric-item">
+            <div class="label">Текущая стоимость</div>
+            <div class="val" id="totalValText">0 ₽</div>
+            <div class="sub" id="totalInvText" style="color: var(--ink-muted);">Вложено: 0 ₽</div>
           </div>
-          <div class="progress-track">
-            <div class="progress-fill" id="goalProgressBar" style="width: 0%;"></div>
+          <div class="metric-item">
+            <div class="label">Финансовый результат</div>
+            <div class="val" id="totalPlText">0 ₽</div>
+            <div class="sub" id="totalPlPctText">0.00%</div>
+          </div>
+          <div class="metric-item">
+            <div class="label">Классов активов</div>
+            <div class="val">3</div>
+            <div class="sub" style="color: var(--ink-muted);">Облигации, Акции, Золото</div>
           </div>
         </div>
 
-        <div class="allocation-bars">
-          <div class="alloc-row">
-            <div class="alloc-meta">
-              <span><strong>Облигации</strong> (цель: 60%)</span>
-              <span id="allocBondsLabel">0.0% • нужно докупить: 0 ₽</span>
-            </div>
-            <div class="alloc-bar-bg">
-              <div class="alloc-bar-fill" id="allocBondsBar" style="width: 0%; background: #2563eb;"></div>
-            </div>
-          </div>
-
-          <div class="alloc-row">
-            <div class="alloc-meta">
-              <span><strong>Акции РФ</strong> (цель: 25%)</span>
-              <span id="allocStocksLabel">0.0%</span>
-            </div>
-            <div class="alloc-bar-bg">
-              <div class="alloc-bar-fill" id="allocStocksBar" style="width: 0%; background: #059669;"></div>
-            </div>
-          </div>
-
-          <div class="alloc-row">
-            <div class="alloc-meta">
-              <span><strong>Физическое золото (монеты)</strong> (цель: 15%)</span>
-              <span id="allocGoldLabel">0.0%</span>
-            </div>
-            <div class="alloc-bar-bg">
-              <div class="alloc-bar-fill" id="allocGoldBar" style="width: 0%; background: #d97706;"></div>
-            </div>
-          </div>
-        </div>
+        <table class="class-table">
+          <thead>
+            <tr>
+              <th>Класс актива</th>
+              <th class="num">Позиций</th>
+              <th class="num">Вложено, ₽</th>
+              <th class="num">Текущая стоимость, ₽</th>
+              <th class="num">Результат, ₽</th>
+              <th class="num">Доля, %</th>
+            </tr>
+          </thead>
+          <tbody id="classBreakdownBody"></tbody>
+        </table>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Распределение активов</div>
-        </div>
-        <div class="chart-box">
-          <canvas id="allocationChart"></canvas>
+      <div class="panel">
+        <div class="panel-title">Структура портфеля (%)</div>
+        <div class="chart-wrap">
+          <canvas id="assetChart"></canvas>
         </div>
       </div>
     </div>
 
     <!-- Table Controls -->
-    <div class="table-controls">
-      <div class="tabs">
-        <button class="tab-btn active" onclick="setFilter('all', this)">Все активы</button>
-        <button class="tab-btn" onclick="setFilter('Облигации', this)">Облигации</button>
-        <button class="tab-btn" onclick="setFilter('Акции', this)">Акции</button>
-        <button class="tab-btn" onclick="setFilter('Золото', this)">Золото (монеты)</button>
+    <div class="controls-bar">
+      <div class="filter-group">
+        <button class="filter-btn active" onclick="setFilter('all', this)">Все</button>
+        <button class="filter-btn" onclick="setFilter('Облигации', this)">Облигации</button>
+        <button class="filter-btn" onclick="setFilter('Акции', this)">Акции</button>
+        <button class="filter-btn" onclick="setFilter('Золото', this)">Золото</button>
       </div>
-      <input
-        type="text"
-        class="search-input"
-        id="searchInput"
-        placeholder="Поиск по тикеру, ISIN или названию..."
-        oninput="renderTable()"
-      />
+      <input type="text" class="search-box" id="searchInput" placeholder="Фильтр по названию или тикеру..." oninput="renderAll()" />
     </div>
 
-    <!-- Assets Table -->
-    <div class="table-container">
-      <table>
+    <!-- Holdings Table -->
+    <div class="table-wrap">
+      <table class="holdings">
         <thead>
           <tr>
-            <th onclick="sortTable('name')">Актив / ISIN</th>
-            <th onclick="sortTable('category')">Класс</th>
-            <th class="num" onclick="sortTable('qty')">Кол-во</th>
-            <th class="num" onclick="sortTable('avgPrice')">Ср. цена</th>
-            <th class="num" onclick="sortTable('currPrice')">Тек. цена</th>
-            <th class="num" onclick="sortTable('totalValue')">Стоимость, ₽</th>
-            <th class="num" onclick="sortTable('plRub')">Прибыль, ₽</th>
-            <th class="num" onclick="sortTable('plPct')">Дох-ть, %</th>
-            <th class="num" onclick="sortTable('share')">Доля, %</th>
-            <th class="num">Действие</th>
+            <th onclick="sortBy('name')">Наименование / Тикер</th>
+            <th onclick="sortBy('category')">Класс</th>
+            <th class="num" onclick="sortBy('qty')">Кол-во</th>
+            <th class="num" onclick="sortBy('avgPrice')">Цена покупки</th>
+            <th class="num" onclick="sortBy('currPrice')">Текущая цена</th>
+            <th class="num" onclick="sortBy('invested')">Вложено, ₽</th>
+            <th class="num" onclick="sortBy('value')">Стоимость, ₽</th>
+            <th class="num" onclick="sortBy('plRub')">Прибыль / Убыток</th>
+            <th class="num" onclick="sortBy('plPct')">%</th>
+            <th class="num" onclick="sortBy('share')">Доля, %</th>
+            <th class="num">Управление</th>
           </tr>
         </thead>
-        <tbody id="portfolioTableBody"></tbody>
+        <tbody id="holdingsBody"></tbody>
+        <tfoot id="holdingsFoot"></tfoot>
       </table>
     </div>
   </div>
 
-  <!-- Add/Edit Trade Modal -->
-  <div class="modal-backdrop" id="tradeModal">
-    <div class="modal">
-      <h2>Зафиксировать сделку</h2>
-      <div class="form-group">
-        <label>Класс актива</label>
-        <select id="mCategory" onchange="onCategoryChange()">
-          <option value="Облигации">Облигации (MOEX)</option>
-          <option value="Акции">Акции (MOEX)</option>
-          <option value="Золото">Золото (инвестиционные монеты)</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Тикер / ISIN</label>
-          <input type="text" id="mTicker" placeholder="Например: RU000A10D3S6" />
+  <!-- Add / Edit Modal -->
+  <div class="modal-bg" id="editModal">
+    <div class="modal-box">
+      <h2 id="modalTitle">Новая позиция</h2>
+      <input type="hidden" id="editIndex" value="-1" />
+      <div class="field-grid">
+        <div class="field">
+          <label>Класс актива</label>
+          <select id="fCategory" onchange="syncBoardSelect()">
+            <option value="Облигации">Облигации</option>
+            <option value="Акции">Акции</option>
+            <option value="Золото">Золото</option>
+          </select>
         </div>
-        <div class="form-group">
-          <label>Режим торгов (Board)</label>
-          <select id="mBoard">
-            <option value="TQCB">TQCB (Корп. бонды)</option>
+        <div class="field">
+          <label>Секция (Board)</label>
+          <select id="fBoard">
+            <option value="TQCB">TQCB (Корп. облигации)</option>
             <option value="TQOB">TQOB (ОФЗ)</option>
             <option value="TQBR">TQBR (Акции)</option>
-            <option value="GOLD">GOLD (Физич. золото)</option>
+            <option value="GOLD">GOLD (Монеты / Золото)</option>
           </select>
         </div>
       </div>
-      <div class="form-group">
-        <label>Наименование бумаги / монеты</label>
-        <input type="text" id="mName" placeholder="Например: Селигдар 001Р-06" />
+      <div class="field-grid">
+        <div class="field">
+          <label>Тикер / ISIN</label>
+          <input type="text" id="fTicker" placeholder="SBERP или RU000..." />
+        </div>
+        <div class="field">
+          <label>Наименование</label>
+          <input type="text" id="fName" placeholder="Сбербанк (ап)" />
+        </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
+      <div class="field-grid">
+        <div class="field">
           <label>Количество (шт.)</label>
-          <input type="number" id="mQty" step="1" placeholder="100" />
+          <input type="number" id="fQty" step="1" />
         </div>
-        <div class="form-group">
-          <label>Цена сделки (в рублях за 1 шт.)</label>
-          <input type="number" id="mPrice" step="0.01" placeholder="987.80" />
+        <div class="field">
+          <label>Средняя цена покупки (₽)</label>
+          <input type="number" id="fAvgPrice" step="0.01" />
         </div>
       </div>
-      <div class="form-group">
-        <label>Тип операции</label>
-        <select id="mSide">
-          <option value="buy">Покупка (добавить / усреднить)</option>
-          <option value="sell">Продажа (уменьшить позицию)</option>
-        </select>
+      <div class="field">
+        <label>Текущая рыночная цена (₽ за 1 шт.)</label>
+        <input type="number" id="fCurrPrice" step="0.01" />
       </div>
-      <div class="modal-actions">
-        <button class="btn" onclick="closeTradeModal()">Отмена</button>
-        <button class="btn btn-primary" onclick="saveTrade()">Сохранить сделку</button>
+      <div class="modal-footer">
+        <button onclick="closeModal()">Отмена</button>
+        <button class="primary" onclick="savePosition()">Сохранить</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Начальный портфель (28 биржевых активов + золотые монеты)
-    const INITIAL_PORTFOLIO = [
-      // Облигации (10 выпусков)
+    // Точный состав портфеля из таблицы Google Sheets (10 облигаций, 17 акций, 2 вида золотых монет)
+    const DEFAULT_HOLDINGS = [
+      // Облигации
       { ticker: "SU26247RMFS5", name: "ОФЗ 26247", category: "Облигации", board: "TQOB", qty: 400, avgPrice: 796.90, currPrice: 805.20, faceValue: 1000 },
       { ticker: "SU26248RMFS3", name: "ОФЗ 26248", category: "Облигации", board: "TQOB", qty: 400, avgPrice: 795.00, currPrice: 803.50, faceValue: 1000 },
       { ticker: "RU000A10C8F3", name: "Брусника 002P-04", category: "Облигации", board: "TQCB", qty: 409, avgPrice: 978.00, currPrice: 984.50, faceValue: 1000 },
@@ -787,7 +652,7 @@
       { ticker: "RU000A10FX18", name: "Фабрика ПО 001Р-01", category: "Облигации", board: "TQCB", qty: 100, avgPrice: 981.00, currPrice: 986.40, faceValue: 1000 },
       { ticker: "RU000A10D3S6", name: "Селигдар 001Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 987.80, currPrice: 992.10, faceValue: 1000 },
 
-      // Акции РФ (17 эмитентов)
+      // Акции
       { ticker: "SBERP", name: "Сбербанк (ап)", category: "Акции", board: "TQBR", qty: 1100, avgPrice: 278.50, currPrice: 304.20 },
       { ticker: "X5", name: "Корп. центр ИКС 5", category: "Акции", board: "TQBR", qty: 183, avgPrice: 2810.00, currPrice: 3120.00 },
       { ticker: "TRNFP", name: "Транснефть (ап)", category: "Акции", board: "TQBR", qty: 200, avgPrice: 1290.00, currPrice: 1365.00 },
@@ -806,142 +671,144 @@
       { ticker: "OZON", name: "МКПАО Озон", category: "Акции", board: "TQBR", qty: 30, avgPrice: 3450.00, currPrice: 3890.00 },
       { ticker: "OZPH", name: "Озон Фармацевтика", category: "Акции", board: "TQBR", qty: 4000, avgPrice: 44.50, currPrice: 51.20 },
 
-      // Физическое золото (инвестиционные монеты)
+      // Золото (монеты)
       { ticker: "COIN-GP", name: "Георгий Победоносец (7.78 г Au)", category: "Золото", board: "GOLD", qty: 12, avgPrice: 61500.00, currPrice: 71800.00, pureGrams: 7.78, premium: 1.075 },
       { ticker: "COIN-N2-10", name: "Николай II 10 руб. (7.74 г Au)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 64000.00, currPrice: 75200.00, pureGrams: 7.74, premium: 1.13 }
     ];
 
-    const GOAL_TARGET_RUB = 15000000;
-    let portfolio = JSON.parse(localStorage.getItem("user_portfolio_light_v1")) || structuredClone(INITIAL_PORTFOLIO);
-    let currentFilter = "all";
-    let sortState = { key: "totalValue", dir: "desc" };
-    let allocChart = null;
-    let marketRates = { xauUsd: 2740.0, usdRub: 97.50 };
+    const STORAGE_KEY = "gsheets_portfolio_v2";
+    let holdings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_HOLDINGS);
+    let activeFilter = "all";
+    let sortCol = "value";
+    let sortAsc = false;
+    let chartInstance = null;
+    let rates = { usdRub: 97.50, xauUsd: 2740.00 };
 
-    function fmtRub(num) {
-      return new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", maximumFractionDigits: 0 }).format(num);
+    function fmtMoney(v) {
+      return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(v) + " ₽";
     }
 
-    function fmtNum(num, digits = 2) {
-      return new Intl.NumberFormat("ru-RU", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(num);
+    function fmtDecimal(v, d = 2) {
+      return new Intl.NumberFormat("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
     }
 
-    function saveState() {
-      localStorage.setItem("user_portfolio_light_v1", JSON.stringify(portfolio));
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(holdings));
     }
 
-    function recalculateAndRender() {
-      const gramPriceRub = (marketRates.xauUsd / 31.1034768) * marketRates.usdRub;
-      document.getElementById("xauUsdVal").textContent = `$${fmtNum(marketRates.xauUsd, 2)}`;
-      document.getElementById("usdRubVal").textContent = `${fmtNum(marketRates.usdRub, 2)} ₽`;
-      document.getElementById("goldGramRub").textContent = `${fmtRub(gramPriceRub)}/г`;
+    function renderAll() {
+      const gramRub = (rates.xauUsd / 31.1034768) * rates.usdRub;
+      document.getElementById("usdRubText").textContent = `${fmtDecimal(rates.usdRub, 2)} ₽`;
+      document.getElementById("xauUsdText").textContent = `$${fmtDecimal(rates.xauUsd, 2)}`;
+      document.getElementById("goldGramText").textContent = fmtMoney(gramRub);
+      document.getElementById("positionsCountText").textContent = holdings.length;
 
-      let totalVal = 0;
-      let totalInv = 0;
-      let bondsVal = 0;
-      let stocksVal = 0;
-      let goldVal = 0;
+      let totalValue = 0;
+      let totalInvested = 0;
 
-      portfolio.forEach(item => {
+      const classes = {
+        "Облигации": { count: 0, invested: 0, value: 0, color: "#1e3a5f" },
+        "Акции": { count: 0, invested: 0, value: 0, color: "#2e6f40" },
+        "Золото": { count: 0, invested: 0, value: 0, color: "#a16207" }
+      };
+
+      holdings.forEach(item => {
         if (item.category === "Золото" && item.pureGrams) {
-          item.currPrice = Math.round(gramPriceRub * item.pureGrams * (item.premium || 1.08));
+          item.currPrice = Math.round(gramRub * item.pureGrams * (item.premium || 1.08));
         }
-        const val = item.qty * item.currPrice;
         const inv = item.qty * item.avgPrice;
-        totalVal += val;
-        totalInv += inv;
+        const val = item.qty * item.currPrice;
+        totalInvested += inv;
+        totalValue += val;
 
-        if (item.category === "Облигации") bondsVal += val;
-        else if (item.category === "Акции") stocksVal += val;
-        else if (item.category === "Золото") goldVal += val;
+        if (!classes[item.category]) {
+          classes[item.category] = { count: 0, invested: 0, value: 0, color: "#52524e" };
+        }
+        classes[item.category].count += 1;
+        classes[item.category].invested += inv;
+        classes[item.category].value += val;
       });
 
-      const plRub = totalVal - totalInv;
-      const plPct = totalInv > 0 ? (plRub / totalInv) * 100 : 0;
+      const totalPl = totalValue - totalInvested;
+      const totalPlPct = totalInvested > 0 ? (totalPl / totalInvested) * 100 : 0;
 
-      document.getElementById("kpiTotalValue").textContent = fmtRub(totalVal);
-      document.getElementById("kpiInvestedSub").textContent = `Вложено: ${fmtRub(totalInv)}`;
+      document.getElementById("totalValText").textContent = fmtMoney(totalValue);
+      document.getElementById("totalInvText").textContent = `Вложено: ${fmtMoney(totalInvested)}`;
 
-      const plEl = document.getElementById("kpiTotalPL");
-      plEl.textContent = `${plRub >= 0 ? "+" : ""}${fmtRub(plRub)}`;
-      plEl.className = `kpi-value ${plRub >= 0 ? "text-pos" : "text-neg"}`;
+      const plEl = document.getElementById("totalPlText");
+      plEl.textContent = `${totalPl >= 0 ? "+" : ""}${fmtMoney(totalPl)}`;
+      plEl.className = `val ${totalPl >= 0 ? "pos" : "neg"}`;
 
-      const plPctEl = document.getElementById("kpiTotalPLPct");
-      plPctEl.textContent = `${plPct >= 0 ? "+" : ""}${fmtNum(plPct, 2)}% к вложенному`;
-      plPctEl.className = `kpi-sub ${plRub >= 0 ? "text-pos" : "text-neg"}`;
+      const plPctEl = document.getElementById("totalPlPctText");
+      plPctEl.textContent = `${totalPlPct >= 0 ? "+" : ""}${fmtDecimal(totalPlPct, 2)}%`;
+      plPctEl.className = `sub ${totalPl >= 0 ? "pos" : "neg"}`;
 
-      const bondsShare = totalVal > 0 ? (bondsVal / totalVal) * 100 : 0;
-      const stocksShare = totalVal > 0 ? (stocksVal / totalVal) * 100 : 0;
-      const goldShare = totalVal > 0 ? (goldVal / totalVal) * 100 : 0;
+      // Render Class Breakdown Table
+      const cbBody = document.getElementById("classBreakdownBody");
+      cbBody.innerHTML = Object.entries(classes).map(([clsName, stat]) => {
+        const pl = stat.value - stat.invested;
+        const share = totalValue > 0 ? (stat.value / totalValue) * 100 : 0;
+        return `
+          <tr>
+            <td><span class="dot" style="background:${stat.color}"></span><strong>${clsName}</strong></td>
+            <td class="num">${stat.count}</td>
+            <td class="num">${fmtMoney(stat.invested)}</td>
+            <td class="num"><strong>${fmtMoney(stat.value)}</strong></td>
+            <td class="num ${pl >= 0 ? "pos" : "neg"}">${pl >= 0 ? "+" : ""}${fmtMoney(pl)}</td>
+            <td class="num"><strong>${fmtDecimal(share, 1)}%</strong></td>
+          </tr>
+        `;
+      }).join("");
 
-      document.getElementById("kpiBondsValue").textContent = fmtRub(bondsVal);
-      document.getElementById("kpiBondsShare").textContent = `Доля: ${fmtNum(bondsShare, 1)}% (цель 60.0%)`;
-
-      document.getElementById("kpiRiskValue").textContent = fmtRub(stocksVal + goldVal);
-      document.getElementById("kpiRiskShare").textContent = `Акции: ${fmtNum(stocksShare, 1)}% • Золото: ${fmtNum(goldShare, 1)}%`;
-
-      // Goal Progress
-      const goalPct = Math.min((totalVal / GOAL_TARGET_RUB) * 100, 100);
-      document.getElementById("goalPercentText").textContent = `${fmtNum(goalPct, 1)}% (${fmtRub(totalVal)} из ${fmtRub(GOAL_TARGET_RUB)})`;
-      document.getElementById("goalProgressBar").style.width = `${goalPct}%`;
-
-      // Target Allocation Bars
-      const targetBondsRub = totalVal * 0.60;
-      const needBonds = Math.max(0, targetBondsRub - bondsVal);
-      document.getElementById("allocBondsLabel").textContent =
-        `${fmtNum(bondsShare, 1)}% (${fmtRub(bondsVal)})` + (needBonds > 0 ? ` • до цели 60%: +${fmtRub(needBonds)}` : " • Цель выполнена");
-      document.getElementById("allocBondsBar").style.width = `${Math.min(bondsShare, 100)}%`;
-
-      document.getElementById("allocStocksLabel").textContent = `${fmtNum(stocksShare, 1)}% (${fmtRub(stocksVal)})`;
-      document.getElementById("allocStocksBar").style.width = `${Math.min(stocksShare, 100)}%`;
-
-      document.getElementById("allocGoldLabel").textContent = `${fmtNum(goldShare, 1)}% (${fmtRub(goldVal)})`;
-      document.getElementById("allocGoldBar").style.width = `${Math.min(goldShare, 100)}%`;
-
-      updateChart(bondsVal, stocksVal, goldVal);
-      renderTable(totalVal);
+      renderChart(classes);
+      renderTable(totalValue);
     }
 
-    function updateChart(bonds, stocks, gold) {
-      const ctx = document.getElementById("allocationChart").getContext("2d");
-      if (allocChart) {
-        allocChart.data.datasets[0].data = [bonds, stocks, gold];
-        allocChart.update();
+    function renderChart(classes) {
+      const ctx = document.getElementById("assetChart").getContext("2d");
+      const labels = Object.keys(classes);
+      const data = labels.map(k => classes[k].value);
+      const colors = labels.map(k => classes[k].color);
+
+      if (chartInstance) {
+        chartInstance.data.labels = labels;
+        chartInstance.data.datasets[0].data = data;
+        chartInstance.update();
         return;
       }
 
-      allocChart = new Chart(ctx, {
+      chartInstance = new Chart(ctx, {
         type: "doughnut",
         data: {
-          labels: ["Облигации", "Акции", "Золото (монеты)"],
+          labels,
           datasets: [{
-            data: [bonds, stocks, gold],
-            backgroundColor: ["#2563eb", "#059669", "#d97706"],
+            data,
+            backgroundColor: colors,
             borderColor: "#ffffff",
-            borderWidth: 3,
-            hoverOffset: 6
+            borderWidth: 2
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: "66%",
+          cutout: "60%",
           plugins: {
             legend: {
-              position: "right",
+              position: "bottom",
               labels: {
-                color: "#334155",
-                font: { size: 13, weight: "600" },
-                padding: 16
+                color: "#181816",
+                boxWidth: 12,
+                padding: 14,
+                font: { size: 12, weight: "600" }
               }
             },
             tooltip: {
               callbacks: {
-                label: function(context) {
-                  const val = context.raw || 0;
-                  const sum = context.dataset.data.reduce((a, b) => a + b, 0);
-                  const pct = sum > 0 ? ((val / sum) * 100).toFixed(1) : 0;
-                  return ` ${context.label}: ${fmtRub(val)} (${pct}%)`;
+                label: function(ctx) {
+                  const val = ctx.raw || 0;
+                  const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = sum > 0 ? ((val / sum) * 100).toFixed(1) : "0.0";
+                  return ` ${ctx.label}: ${fmtMoney(val)} (${pct}%)`;
                 }
               }
             }
@@ -950,239 +817,271 @@
       });
     }
 
-    function renderTable(totalPortfolioVal = null) {
-      if (totalPortfolioVal === null) {
-        totalPortfolioVal = portfolio.reduce((acc, i) => acc + i.qty * i.currPrice, 0);
-      }
+    function renderTable(totalPortfolioVal) {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
 
-      const query = document.getElementById("searchInput").value.trim().toLowerCase();
-      let rows = portfolio.map((item, index) => {
-        const totalValue = item.qty * item.currPrice;
+      let rows = holdings.map((item, idx) => {
         const invested = item.qty * item.avgPrice;
-        const plRub = totalValue - invested;
+        const value = item.qty * item.currPrice;
+        const plRub = value - invested;
         const plPct = invested > 0 ? (plRub / invested) * 100 : 0;
-        const share = totalPortfolioVal > 0 ? (totalValue / totalPortfolioVal) * 100 : 0;
-        return { ...item, index, totalValue, plRub, plPct, share };
+        const share = totalPortfolioVal > 0 ? (value / totalPortfolioVal) * 100 : 0;
+        return { ...item, idx, invested, value, plRub, plPct, share };
       });
 
-      if (currentFilter !== "all") {
-        rows = rows.filter(r => r.category === currentFilter);
+      if (activeFilter !== "all") {
+        rows = rows.filter(r => r.category === activeFilter);
       }
 
-      if (query) {
-        rows = rows.filter(r =>
-          r.name.toLowerCase().includes(query) ||
-          r.ticker.toLowerCase().includes(query)
-        );
+      if (q) {
+        rows = rows.filter(r => r.name.toLowerCase().includes(q) || r.ticker.toLowerCase().includes(q));
       }
 
       rows.sort((a, b) => {
-        let valA = a[sortState.key];
-        let valB = b[sortState.key];
-        if (typeof valA === "string") {
-          return sortState.dir === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        const vA = a[sortCol];
+        const vB = b[sortCol];
+        if (typeof vA === "string") {
+          return sortAsc ? vA.localeCompare(vB) : vB.localeCompare(vA);
         }
-        return sortState.dir === "asc" ? valA - valB : valB - valA;
+        return sortAsc ? vA - vB : vB - vA;
       });
 
-      const tbody = document.getElementById("portfolioTableBody");
+      const tbody = document.getElementById("holdingsBody");
       tbody.innerHTML = rows.map(r => {
-        const pillClass = r.category === "Облигации" ? "pill-bond" : (r.category === "Акции" ? "pill-stock" : "pill-gold");
-        const plClass = r.plRub >= 0 ? "text-pos" : "text-neg";
+        const clsColor = r.category === "Облигации" ? "#1e3a5f" : (r.category === "Акции" ? "#2e6f40" : "#a16207");
+        const plCls = r.plRub >= 0 ? "pos" : "neg";
         return `
           <tr>
             <td>
-              <div class="asset-name">${r.name}</div>
-              <div class="asset-ticker">${r.ticker} • ${r.board}</div>
+              <strong>${r.name}</strong>
+              <span class="ticker-sub">${r.ticker} · ${r.board}</span>
             </td>
-            <td><span class="pill ${pillClass}">${r.category}</span></td>
-            <td class="num">${fmtNum(r.qty, 0)}</td>
-            <td class="num">${fmtNum(r.avgPrice, 2)} ₽</td>
-            <td class="num"><strong>${fmtNum(r.currPrice, 2)} ₽</strong></td>
-            <td class="num"><strong>${fmtRub(r.totalValue)}</strong></td>
-            <td class="num ${plClass}">${r.plRub >= 0 ? "+" : ""}${fmtRub(r.plRub)}</td>
-            <td class="num ${plClass}">${r.plPct >= 0 ? "+" : ""}${fmtNum(r.plPct, 2)}%</td>
-            <td class="num">${fmtNum(r.share, 1)}%</td>
+            <td><span class="class-tag" style="border-left: 3px solid ${clsColor};">${r.category}</span></td>
+            <td class="num">${fmtDecimal(r.qty, 0)}</td>
+            <td class="num">${fmtDecimal(r.avgPrice, 2)} ₽</td>
+            <td class="num"><strong>${fmtDecimal(r.currPrice, 2)} ₽</strong></td>
+            <td class="num">${fmtMoney(r.invested)}</td>
+            <td class="num"><strong>${fmtMoney(r.value)}</strong></td>
+            <td class="num ${plCls}">${r.plRub >= 0 ? "+" : ""}${fmtMoney(r.plRub)}</td>
+            <td class="num ${plCls}">${r.plPct >= 0 ? "+" : ""}${fmtDecimal(r.plPct, 2)}%</td>
+            <td class="num">${fmtDecimal(r.share, 1)}%</td>
             <td class="num">
-              <button class="action-icon-btn" onclick="deleteAsset(${r.index})" title="Удалить позицию">✕</button>
+              <div class="row-actions">
+                <button class="icon-btn" onclick="openModal(${r.idx})" title="Редактировать">Изм.</button>
+                <button class="icon-btn del" onclick="removeRow(${r.idx})" title="Удалить">✕</button>
+              </div>
             </td>
           </tr>
         `;
       }).join("");
+
+      const subInv = rows.reduce((s, r) => s + r.invested, 0);
+      const subVal = rows.reduce((s, r) => s + r.value, 0);
+      const subPl = subVal - subInv;
+      const subPlPct = subInv > 0 ? (subPl / subInv) * 100 : 0;
+      const subShare = totalPortfolioVal > 0 ? (subVal / totalPortfolioVal) * 100 : 0;
+
+      document.getElementById("holdingsFoot").innerHTML = `
+        <tr>
+          <td colspan="5">Итого по выборке (${rows.length} поз.)</td>
+          <td class="num">${fmtMoney(subInv)}</td>
+          <td class="num">${fmtMoney(subVal)}</td>
+          <td class="num ${subPl >= 0 ? "pos" : "neg"}">${subPl >= 0 ? "+" : ""}${fmtMoney(subPl)}</td>
+          <td class="num ${subPl >= 0 ? "pos" : "neg"}">${subPlPct >= 0 ? "+" : ""}${fmtDecimal(subPlPct, 2)}%</td>
+          <td class="num">${fmtDecimal(subShare, 1)}%</td>
+          <td></td>
+        </tr>
+      `;
     }
 
     function setFilter(cat, btn) {
-      currentFilter = cat;
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      activeFilter = cat;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      renderTable();
+      renderAll();
     }
 
-    function sortTable(key) {
-      if (sortState.key === key) {
-        sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+    function sortBy(col) {
+      if (sortCol === col) {
+        sortAsc = !sortAsc;
       } else {
-        sortState.key = key;
-        sortState.dir = "desc";
+        sortCol = col;
+        sortAsc = false;
       }
-      renderTable();
+      renderAll();
+    }
+
+    function openModal(idx = -1) {
+      document.getElementById("editIndex").value = idx;
+      if (idx >= 0) {
+        const item = holdings[idx];
+        document.getElementById("modalTitle").textContent = "Редактировать позицию";
+        document.getElementById("fCategory").value = item.category;
+        document.getElementById("fBoard").value = item.board;
+        document.getElementById("fTicker").value = item.ticker;
+        document.getElementById("fName").value = item.name;
+        document.getElementById("fQty").value = item.qty;
+        document.getElementById("fAvgPrice").value = item.avgPrice;
+        document.getElementById("fCurrPrice").value = item.currPrice;
+      } else {
+        document.getElementById("modalTitle").textContent = "Добавить позицию";
+        document.getElementById("fCategory").value = "Облигации";
+        document.getElementById("fBoard").value = "TQCB";
+        document.getElementById("fTicker").value = "";
+        document.getElementById("fName").value = "";
+        document.getElementById("fQty").value = "";
+        document.getElementById("fAvgPrice").value = "";
+        document.getElementById("fCurrPrice").value = "";
+      }
+      document.getElementById("editModal").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("editModal").classList.remove("open");
+    }
+
+    function syncBoardSelect() {
+      const c = document.getElementById("fCategory").value;
+      const b = document.getElementById("fBoard");
+      if (c === "Облигации") b.value = "TQCB";
+      else if (c === "Акции") b.value = "TQBR";
+      else b.value = "GOLD";
+    }
+
+    function savePosition() {
+      const idx = parseInt(document.getElementById("editIndex").value, 10);
+      const category = document.getElementById("fCategory").value;
+      const board = document.getElementById("fBoard").value;
+      const ticker = document.getElementById("fTicker").value.trim().toUpperCase();
+      const name = document.getElementById("fName").value.trim() || ticker;
+      const qty = parseFloat(document.getElementById("fQty").value);
+      const avgPrice = parseFloat(document.getElementById("fAvgPrice").value);
+      const currPrice = parseFloat(document.getElementById("fCurrPrice").value) || avgPrice;
+
+      if (!ticker || isNaN(qty) || qty <= 0 || isNaN(avgPrice) || avgPrice <= 0) {
+        alert("Заполните тикер, количество и цену покупки.");
+        return;
+      }
+
+      const record = {
+        ticker,
+        name,
+        category,
+        board,
+        qty,
+        avgPrice,
+        currPrice,
+        faceValue: category === "Облигации" ? 1000 : undefined
+      };
+
+      if (idx >= 0) {
+        // Сохраняем параметры монеты при редактировании золота
+        if (holdings[idx].pureGrams) {
+          record.pureGrams = holdings[idx].pureGrams;
+          record.premium = holdings[idx].premium;
+        }
+        holdings[idx] = record;
+      } else {
+        holdings.push(record);
+      }
+
+      persist();
+      renderAll();
+      closeModal();
+    }
+
+    function removeRow(idx) {
+      if (confirm(`Удалить позицию «${holdings[idx].name}»?`)) {
+        holdings.splice(idx, 1);
+        persist();
+        renderAll();
+      }
+    }
+
+    function resetPortfolio() {
+      if (confirm("Вернуть исходный список позиций из Google Sheets?")) {
+        holdings = structuredClone(DEFAULT_HOLDINGS);
+        persist();
+        renderAll();
+      }
     }
 
     async function refreshMarketData() {
       const btn = document.getElementById("btnRefresh");
       const status = document.getElementById("syncStatus");
       btn.disabled = true;
-      btn.textContent = "↻ Загрузка с MOEX...";
-      status.textContent = "Запрос котировок Мосбиржи и золота...";
+      btn.textContent = "Загрузка...";
+      status.textContent = "Обновление котировок MOEX и курса ЦБ...";
 
       try {
-        // 1. Загрузка курсов ЦБ РФ (USD/RUB)
         const cbrRes = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
         if (cbrRes.ok) {
-          const cbrData = await cbrRes.json();
-          if (cbrData?.Valute?.USD?.Value) {
-            marketRates.usdRub = cbrData.Valute.USD.Value;
+          const cbr = await cbrRes.json();
+          if (cbr?.Valute?.USD?.Value) {
+            rates.usdRub = cbr.Valute.USD.Value;
           }
         }
 
-        // 2. Загрузка котировок MOEX по секциям TQBR, TQOB, TQCB
         const boards = ["TQBR", "TQOB", "TQCB"];
-        const priceMap = {};
+        const prices = {};
 
         for (const board of boards) {
-          const url = `https://iss.moex.com/iss/engines/stock/markets/${board === "TQBR" ? "shares" : "bonds"}/boards/${board}/securities.json?iss.meta=off&iss.only=securities,marketdata`;
+          const market = board === "TQBR" ? "shares" : "bonds";
+          const url = `https://iss.moex.com/iss/engines/stock/markets/${market}/boards/${board}/securities.json?iss.meta=off&iss.only=securities,marketdata`;
           const res = await fetch(url);
           if (!res.ok) continue;
           const json = await res.json();
-          const secCols = json.securities.columns;
-          const mdCols = json.marketdata.columns;
-          const secIdIdx = secCols.indexOf("SECID");
-          const prevIdx = secCols.indexOf("PREVPRICE");
-          const faceIdx = secCols.indexOf("FACEVALUE");
-          const mdIdIdx = mdCols.indexOf("SECID");
-          const lastIdx = mdCols.indexOf("LAST");
 
-          const mdMap = {};
-          json.marketdata.data.forEach(row => {
-            mdMap[row[mdIdIdx]] = row[lastIdx];
+          const sCols = json.securities.columns;
+          const mCols = json.marketdata.columns;
+          const sId = sCols.indexOf("SECID");
+          const sPrev = sCols.indexOf("PREVPRICE");
+          const sFace = sCols.indexOf("FACEVALUE");
+          const mId = mCols.indexOf("SECID");
+          const mLast = mCols.indexOf("LAST");
+
+          const lastMap = {};
+          json.marketdata.data.forEach(r => {
+            if (r[mLast] !== null) lastMap[r[mId]] = r[mLast];
           });
 
-          json.securities.data.forEach(row => {
-            const id = row[secIdIdx];
-            const rawPrice = mdMap[id] || row[prevIdx];
-            if (rawPrice) {
-              if (board === "TQBR") {
-                priceMap[id] = rawPrice;
-              } else {
-                const fv = row[faceIdx] || 1000;
-                priceMap[id] = (rawPrice / 100) * fv;
-              }
+          json.securities.data.forEach(r => {
+            const id = r[sId];
+            const p = lastMap[id] ?? r[sPrev];
+            if (p) {
+              prices[id] = board === "TQBR" ? p : (p / 100) * (r[sFace] || 1000);
             }
           });
         }
 
-        let updatedCount = 0;
-        portfolio.forEach(item => {
-          if (priceMap[item.ticker]) {
-            item.currPrice = Number(priceMap[item.ticker].toFixed(2));
-            updatedCount++;
+        let updated = 0;
+        holdings.forEach(item => {
+          if (prices[item.ticker]) {
+            item.currPrice = Number(prices[item.ticker].toFixed(2));
+            updated++;
           }
         });
 
-        saveState();
-        recalculateAndRender();
-        const nowStr = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-        status.textContent = `Обновлено в ${nowStr} (бумаг: ${updatedCount})`;
+        persist();
+        renderAll();
+        const t = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+        status.textContent = `Обновлено в ${t} (MOEX: ${updated})`;
       } catch (e) {
-        status.textContent = "Ошибка сети при обращении к MOEX (показаны сохранённые цены)";
+        status.textContent = "Ошибка сети MOEX (используются сохранённые цены)";
       } finally {
         btn.disabled = false;
-        btn.textContent = "↻ Обновить цены MOEX";
-      }
-    }
-
-    function openTradeModal() {
-      document.getElementById("tradeModal").classList.add("open");
-    }
-
-    function closeTradeModal() {
-      document.getElementById("tradeModal").classList.remove("open");
-    }
-
-    function onCategoryChange() {
-      const cat = document.getElementById("mCategory").value;
-      const board = document.getElementById("mBoard");
-      if (cat === "Облигации") board.value = "TQCB";
-      else if (cat === "Акции") board.value = "TQBR";
-      else board.value = "GOLD";
-    }
-
-    function saveTrade() {
-      const category = document.getElementById("mCategory").value;
-      const ticker = document.getElementById("mTicker").value.trim().toUpperCase();
-      const board = document.getElementById("mBoard").value;
-      const name = document.getElementById("mName").value.trim() || ticker;
-      const qty = parseFloat(document.getElementById("mQty").value);
-      const price = parseFloat(document.getElementById("mPrice").value);
-      const side = document.getElementById("mSide").value;
-
-      if (!ticker || isNaN(qty) || qty <= 0 || isNaN(price) || price <= 0) {
-        alert("Заполните тикер, количество и цену сделки.");
-        return;
-      }
-
-      const existingIdx = portfolio.findIndex(p => p.ticker === ticker);
-      if (existingIdx !== -1) {
-        const item = portfolio[existingIdx];
-        if (side === "buy") {
-          const newTotalQty = item.qty + qty;
-          item.avgPrice = ((item.qty * item.avgPrice) + (qty * price)) / newTotalQty;
-          item.qty = newTotalQty;
-          item.currPrice = price;
-        } else {
-          item.qty = Math.max(0, item.qty - qty);
-          if (item.qty === 0) portfolio.splice(existingIdx, 1);
-        }
-      } else if (side === "buy") {
-        portfolio.push({
-          ticker,
-          name,
-          category,
-          board,
-          qty,
-          avgPrice: price,
-          currPrice: price,
-          faceValue: category === "Облигации" ? 1000 : undefined
-        });
-      }
-
-      saveState();
-      recalculateAndRender();
-      closeTradeModal();
-    }
-
-    function deleteAsset(idx) {
-      if (confirm(`Удалить «${portfolio[idx].name}» из портфеля?`)) {
-        portfolio.splice(idx, 1);
-        saveState();
-        recalculateAndRender();
-      }
-    }
-
-    function resetToDefault() {
-      if (confirm("Сбросить все ручные правки и вернуть исходный портфель?")) {
-        portfolio = structuredClone(INITIAL_PORTFOLIO);
-        saveState();
-        recalculateAndRender();
+        btn.textContent = "Обновить котировки MOEX";
       }
     }
 
     function exportCSV() {
-      const header = "ticker,name,category,board,qty,avg_price,curr_price\n";
-      const rows = portfolio.map(p =>
-        `${p.ticker},"${p.name}",${p.category},${p.board},${p.qty},${p.avgPrice.toFixed(2)},${p.currPrice.toFixed(2)}`
-      ).join("\n");
-      const blob = new Blob(["\uFEFF" + header + rows], { type: "text/csv;charset=utf-8;" });
+      const header = "ticker,name,category,board,qty,avg_price,curr_price
+";
+      const lines = holdings.map(h =>
+        `${h.ticker},"${h.name}",${h.category},${h.board},${h.qty},${h.avgPrice.toFixed(2)},${h.currPrice.toFixed(2)}`
+      ).join("
+");
+      const blob = new Blob(["﻿" + header + lines], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -1191,12 +1090,13 @@
       URL.revokeObjectURL(url);
     }
 
-    function importCSV(event) {
-      const file = event.target.files[0];
+    function importCSV(e) {
+      const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
-        const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+      reader.onload = function(ev) {
+        const lines = ev.target.result.split(/?
+/).filter(l => l.trim());
         if (lines.length < 2) return;
         const parsed = [];
         for (let i = 1; i < lines.length; i++) {
@@ -1214,23 +1114,22 @@
           }
         }
         if (parsed.length > 0) {
-          portfolio = parsed;
-          saveState();
-          recalculateAndRender();
-          alert(`Загружено позиций: ${parsed.length}`);
+          holdings = parsed;
+          persist();
+          renderAll();
         }
       };
       reader.readAsText(file);
     }
 
-
-    // Автоматическая попытка загрузить свежий portfolio.csv из репозитория (GitHub Pages)
-    async function tryLoadRepoCSV() {
+    (async function bootstrap() {
+      renderAll();
       try {
         const res = await fetch("portfolio.csv?t=" + Date.now());
-        if (res.ok) {
+        if (res.ok && !localStorage.getItem(STORAGE_KEY)) {
           const text = await res.text();
-          const lines = text.split(/\r?\n/).filter(l => l.trim());
+          const lines = text.split(/?
+/).filter(l => l.trim());
           if (lines.length >= 2) {
             const parsed = [];
             for (let i = 1; i < lines.length; i++) {
@@ -1247,23 +1146,16 @@
                 });
               }
             }
-            if (parsed.length > 0 && !localStorage.getItem("user_portfolio_light_v1")) {
-              portfolio = parsed;
-              saveState();
+            if (parsed.length > 0) {
+              holdings = parsed;
+              persist();
+              renderAll();
             }
           }
         }
       } catch (e) {}
-    }
-
-    // Инициализация при загрузке страницы
-    (async function init() {
-      recalculateAndRender();
-      await tryLoadRepoCSV();
-      recalculateAndRender();
       refreshMarketData();
     })();
-
   </script>
 </body>
 </html>
