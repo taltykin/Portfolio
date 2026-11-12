@@ -660,7 +660,7 @@
       { ticker: "XAUUSD", name: "ГПЗ 7.78 (2025-2018)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 95475.25, currPrice: 82658.17, pureGrams: 7.78, premium: 1.00 }
     ];
 
-    const STORAGE_KEY = "gsheets_portfolio_v7";
+    const STORAGE_KEY = "gsheets_portfolio_v8";
     let holdings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_HOLDINGS);
     let activeFilter = "all";
     let sortCol = "value";
@@ -1217,36 +1217,11 @@
     }
 
     (async function bootstrap() {
+      if (!Array.isArray(holdings) || holdings.length === 0) {
+        holdings = structuredClone(DEFAULT_HOLDINGS);
+        persist();
+      }
       renderAll();
-      try {
-        const res = await fetch("portfolio.csv?t=" + Date.now());
-        if (res.ok && !localStorage.getItem(STORAGE_KEY)) {
-          const text = await res.text();
-          const lines = parseCSVLines(text);
-          if (lines.length >= 2) {
-            const parsed = [];
-            for (let i = 1; i < lines.length; i++) {
-              const cols = lines[i].split(",");
-              if (cols.length >= 6) {
-                parsed.push({
-                  ticker: cols[0].trim(),
-                  name: cols[1].replace(/"/g, "").trim(),
-                  category: cols[2].trim(),
-                  board: cols[3].trim(),
-                  qty: parseFloat(cols[4]) || 0,
-                  avgPrice: parseFloat(cols[5]) || 0,
-                  currPrice: parseFloat(cols[6]) || parseFloat(cols[5]) || 0
-                });
-              }
-            }
-            if (parsed.length > 0) {
-              holdings = parsed;
-              persist();
-              renderAll();
-            }
-          }
-        }
-      } catch (e) {}
       refreshMarketData();
     })();
   </script>
