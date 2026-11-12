@@ -1178,13 +1178,11 @@
     }
 
     function exportCSV() {
-      const header = "ticker,name,category,board,qty,avg_price,curr_price
-";
+      const header = "ticker,name,category,board,qty,avg_price,curr_price\n";
       const rows = portfolio.map(p =>
         `${p.ticker},"${p.name}",${p.category},${p.board},${p.qty},${p.avgPrice.toFixed(2)},${p.currPrice.toFixed(2)}`
-      ).join("
-");
-      const blob = new Blob(["﻿" + header + rows], { type: "text/csv;charset=utf-8;" });
+      ).join("\n");
+      const blob = new Blob(["\uFEFF" + header + rows], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -1198,8 +1196,7 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
-        const lines = e.target.result.split(/?
-/).filter(l => l.trim());
+        const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
         if (lines.length < 2) return;
         const parsed = [];
         for (let i = 1; i < lines.length; i++) {
@@ -1226,8 +1223,47 @@
       reader.readAsText(file);
     }
 
+
+    // Автоматическая попытка загрузить свежий portfolio.csv из репозитория (GitHub Pages)
+    async function tryLoadRepoCSV() {
+      try {
+        const res = await fetch("portfolio.csv?t=" + Date.now());
+        if (res.ok) {
+          const text = await res.text();
+          const lines = text.split(/\r?\n/).filter(l => l.trim());
+          if (lines.length >= 2) {
+            const parsed = [];
+            for (let i = 1; i < lines.length; i++) {
+              const cols = lines[i].split(",");
+              if (cols.length >= 6) {
+                parsed.push({
+                  ticker: cols[0].trim(),
+                  name: cols[1].replace(/"/g, "").trim(),
+                  category: cols[2].trim(),
+                  board: cols[3].trim(),
+                  qty: parseFloat(cols[4]) || 0,
+                  avgPrice: parseFloat(cols[5]) || 0,
+                  currPrice: parseFloat(cols[6]) || parseFloat(cols[5]) || 0
+                });
+              }
+            }
+            if (parsed.length > 0 && !localStorage.getItem("user_portfolio_light_v1")) {
+              portfolio = parsed;
+              saveState();
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
     // Инициализация при загрузке страницы
-    recalculateAndRender();
+    (async function init() {
+      recalculateAndRender();
+      await tryLoadRepoCSV();
+      recalculateAndRender();
+      refreshMarketData();
+    })();
+
   </script>
 </body>
 </html>
