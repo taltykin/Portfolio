@@ -609,8 +609,20 @@
       border: 1px solid var(--divider);
       border-radius: 10px;
       font-family: inherit;
-      background: #ffffff;
+      background-color: #ffffff;
       color: var(--ink);
+    }
+
+    .field select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      padding-right: 36px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 1.75L6 6.25L10.5 1.75' stroke='%231d1d1f' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 12px 8px;
+      cursor: pointer;
     }
 
     .field input:focus, .field select:focus {
@@ -780,8 +792,9 @@
 
       <!-- Clean Solid Pie Chart + Legend (Right) -->
       <div class="pie-col">
-        <div class="growth-header" style="width: 100%; justify-content: flex-start;">
-          <div class="growth-title">Структура активов</div>
+        <div class="growth-header" style="width: 100%; justify-content: space-between; align-items: baseline;">
+          <div class="growth-title" id="pieTitle">Структура активов</div>
+          <button type="button" id="pieResetBtn" class="mini-link" style="display: none; font-size: 13px; padding: 0;" onclick="setFilter('all', document.querySelector('.fpill[data-cat=\'all\']'))">← Все активы</button>
         </div>
         <div class="pie-section">
           <div class="pie-box">
@@ -826,13 +839,8 @@
       </table>
     </div>
 
-    <footer style="margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--divider-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: var(--ink-muted);">
+    <footer style="margin-top: 36px; font-size: 12.5px; color: var(--ink-muted);">
       <span>Данные хранятся локально в вашем браузере</span>
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <button type="button" class="mini-link" style="font-size: 12.5px;" onclick="exportBackup()">Скачать резервную копию (.json)</button>
-        <span>·</span>
-        <button type="button" class="mini-link" style="font-size: 12.5px;" onclick="document.getElementById('importFile').click()">Восстановить из файла</button>
-      </div>
     </footer>
   </div>
 
@@ -1163,11 +1171,6 @@
               ${isToday ? `Вчера ${fmtMoney(st.prevValue)}` : `Вложено ${fmtMoney(st.invested)}`}
             </div>
 
-            <div class="spec-divider"></div>
-
-            <div class="spec-big">${fmtDecimal(share, 1)}%</div>
-            <div class="spec-caption">Доля в структуре портфеля</div>
-
             <div style="margin-top: 22px;">
               <div class="spec-big ${plCls}">${plSign}${fmtMoney(pl)}</div>
               <div class="spec-caption ${plCls}">${plSign}${fmtDecimal(plPct, 2)}% ${isToday ? "за сегодня" : "к вложениям"}</div>
@@ -1177,21 +1180,92 @@
       }).join("");
     }
 
+    const CLASS_PALETTES = {
+      "Акции": ["#0071e3", "#2989eb", "#52a1f2", "#7ab8f7", "#a3d0fb", "#cce6fe", "#005bb5", "#004488"],
+      "Облигации": ["#34a853", "#4cb869", "#66c780", "#82d598", "#9fe2b1", "#bceec9", "#288842", "#1e6832"],
+      "Золото": ["#e67e22", "#eb9344", "#f0a867", "#f4bd8b", "#f8d2b0", "#c96a16", "#a8560f"]
+    };
+
     function renderPie(classes, totalValue) {
-      const labels = Object.keys(classes);
-      const values = labels.map(k => classes[k].value);
-      const colors = labels.map(k => classes[k].color);
+      const isDrilled = activeFilter !== "all";
+      const titleEl = document.getElementById("pieTitle");
+      const resetBtn = document.getElementById("pieResetBtn");
+
+      let labels = [];
+      let values = [];
+      let colors = [];
+      let baseTotal = totalValue;
+      let legendItems = [];
+
+      if (!isDrilled) {
+        if (titleEl) titleEl.textContent = "Структура активов";
+        if (resetBtn) resetBtn.style.display = "none";
+
+        labels = Object.keys(classes);
+        values = labels.map(k => classes[k].value);
+        colors = labels.map(k => classes[k].color);
+        legendItems = labels.map(name => ({
+          name,
+          value: classes[name].value,
+          color: classes[name].color,
+          onClick: `selectPieClass('${name}')`
+        }));
+      } else {
+        const classLabel = activeFilter === "Золото" ? "Структура золота" : `Структура: ${activeFilter.toLowerCase()}`;
+        if (titleEl) titleEl.textContent = classLabel;
+        if (resetBtn) resetBtn.style.display = "inline-block";
+
+        const classItems = holdings
+          .filter(h => h.category === activeFilter)
+          .map(h => ({
+            name: h.name,
+            value: h.qty * h.currPrice
+          }))
+          .filter(x => x.value > 0)
+          .sort((a, b) => b.value - a.value);
+
+        baseTotal = classItems.reduce((s, x) => s + x.value, 0);
+        const palette = CLASS_PALETTES[activeFilter] || ["#0071e3", "#34a853", "#e67e22", "#6e6e73"];
+
+        labels = classItems.map(x => x.name);
+        values = classItems.map(x => x.value);
+        colors = classItems.map((_, idx) => palette[idx % palette.length]);
+
+        const maxLegendRows = 5;
+        if (classItems.length <= maxLegendRows) {
+          legendItems = classItems.map((item, idx) => ({
+            name: item.name,
+            value: item.value,
+            color: colors[idx],
+            onClick: `togglePieAssetSearch('${item.name.replace(/'/g, "\'")}')`
+          }));
+        } else {
+          const topItems = classItems.slice(0, maxLegendRows - 1);
+          const restSum = classItems.slice(maxLegendRows - 1).reduce((s, x) => s + x.value, 0);
+          legendItems = topItems.map((item, idx) => ({
+            name: item.name,
+            value: item.value,
+            color: colors[idx],
+            onClick: `togglePieAssetSearch('${item.name.replace(/'/g, "\'")}')`
+          }));
+          legendItems.push({
+            name: `Прочие (${classItems.length - (maxLegendRows - 1)})`,
+            value: restSum,
+            color: "#d2d2d7",
+            onClick: `togglePieAssetSearch('')`
+          });
+        }
+      }
 
       const legend = document.getElementById("pieLegend");
-      legend.innerHTML = labels.map(name => {
-        const st = classes[name];
-        const share = totalValue > 0 ? (st.value / totalValue) * 100 : 0;
+      legend.innerHTML = legendItems.map(item => {
+        const share = baseTotal > 0 ? (item.value / baseTotal) * 100 : 0;
         return `
-          <div class="pie-leg-row" onclick="quickFilter('${name}')">
-            <span class="pie-swatch" style="background:${st.color};"></span>
+          <div class="pie-leg-row" onclick="${item.onClick}">
+            <span class="pie-swatch" style="background:${item.color};"></span>
             <div>
-              <div class="pie-leg-title">${name} · ${fmtDecimal(share, 1)}%</div>
-              <div class="pie-leg-sub">${fmtMoney(st.value)}</div>
+              <div class="pie-leg-title">${item.name} · ${fmtDecimal(share, 1)}%</div>
+              <div class="pie-leg-sub">${fmtMoney(item.value)}</div>
             </div>
           </div>
         `;
@@ -1202,6 +1276,11 @@
         pieChart.data.labels = labels;
         pieChart.data.datasets[0].data = values;
         pieChart.data.datasets[0].backgroundColor = colors;
+        pieChart.options.plugins.tooltip.callbacks.label = c => {
+          const val = c.raw || 0;
+          const pct = baseTotal > 0 ? ((val / baseTotal) * 100).toFixed(1) : "0.0";
+          return ` ${c.label}: ${fmtMoney(val)} (${pct}%)`;
+        };
         pieChart.update();
         return;
       }
@@ -1220,13 +1299,28 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          onClick: (_, elements) => {
+            if (!elements || elements.length === 0) return;
+            const idx = elements[0].index;
+            const clickedLabel = pieChart.data.labels[idx];
+            if (activeFilter === "all") {
+              selectPieClass(clickedLabel);
+            } else {
+              togglePieAssetSearch(clickedLabel);
+            }
+          },
+          onHover: (event, elements) => {
+            if (event?.native?.target) {
+              event.native.target.style.cursor = elements.length ? "pointer" : "default";
+            }
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
               callbacks: {
                 label: c => {
                   const val = c.raw || 0;
-                  const pct = totalValue > 0 ? ((val / totalValue) * 100).toFixed(1) : "0.0";
+                  const pct = baseTotal > 0 ? ((val / baseTotal) * 100).toFixed(1) : "0.0";
                   return ` ${c.label}: ${fmtMoney(val)} (${pct}%)`;
                 }
               }
@@ -1325,18 +1419,36 @@
 
     function setFilter(cat, btn) {
       activeFilter = cat;
+      const searchEl = document.getElementById("searchInput");
+      if (searchEl && cat === "all") {
+        searchEl.value = "";
+      }
       document.querySelectorAll(".fpill").forEach(b => b.classList.remove("active"));
-      if (btn) btn.classList.add("active");
+      const targetBtn = btn || document.querySelector(`.fpill[data-cat="${cat}"]`);
+      if (targetBtn) targetBtn.classList.add("active");
+      renderAll();
+    }
+
+    function selectPieClass(cat) {
+      const searchEl = document.getElementById("searchInput");
+      if (searchEl) searchEl.value = "";
+      setFilter(cat);
+    }
+
+    function togglePieAssetSearch(assetName) {
+      const searchEl = document.getElementById("searchInput");
+      if (!searchEl) return;
+      if (!assetName || searchEl.value.trim().toLowerCase() === assetName.toLowerCase()) {
+        searchEl.value = "";
+      } else {
+        searchEl.value = assetName;
+      }
       renderAll();
     }
 
     function quickFilter(cat) {
       const target = activeFilter === cat ? "all" : cat;
-      const btn = document.querySelector(`.fpill[data-cat="${target}"]`);
-      setFilter(target, btn);
-      if (target !== "all") {
-        document.querySelector(".positions-header").scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      setFilter(target);
     }
 
     function sortBy(col) {
