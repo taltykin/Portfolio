@@ -83,14 +83,14 @@
       padding: 8px 18px;
       border-radius: 980px;
       border: none;
-      background: var(--blue);
+      background: #1d1d1f;
       color: #ffffff;
       cursor: pointer;
       transition: background 0.15s ease;
     }
 
     .pill-btn:hover {
-      background: var(--blue-hover);
+      background: #333336;
     }
 
     .link-btn {
@@ -101,13 +101,14 @@
       border-radius: 980px;
       border: 1px solid var(--divider);
       background: #ffffff;
-      color: var(--blue);
+      color: #1d1d1f;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
     .link-btn:hover {
       background: var(--bg-alt);
+      border-color: #1d1d1f;
     }
 
     /* Hero Portfolio Value (Apple Centered Typography) */
@@ -303,8 +304,8 @@
     }
 
     .pie-box {
-      width: 210px;
-      height: 210px;
+      width: 252px;
+      height: 252px;
       position: relative;
     }
 
@@ -864,8 +865,7 @@
             <div class="col-name">${name}</div>
             <div class="col-tagline">${fmtMoney(st.value)}</div>
             <div class="col-desc">
-              Вложено ${fmtMoney(st.invested)}<br/>
-              Позиций в портфеле: ${st.count}
+              Вложено ${fmtMoney(st.invested)}
             </div>
 
             <div class="spec-divider"></div>
