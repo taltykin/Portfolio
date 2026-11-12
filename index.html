@@ -290,44 +290,51 @@
       color: var(--ink);
     }
 
-    /* Unified Horizontal Charts Block: 40% Growth Chart + 60% Pie Chart & Legend */
+    /* Unified 3-Column Horizontal Analytics Block: Growth + Structure + 12m Payouts */
     .charts-row {
       display: grid;
-      grid-template-columns: 4fr 6fr;
-      align-items: start;
-      gap: 40px;
-      padding-bottom: 44px;
+      grid-template-columns: 1.08fr 1.12fr 0.86fr;
+      align-items: stretch;
+      gap: 28px;
+      padding-bottom: 36px;
       border-bottom: 1px solid var(--divider);
-      margin-bottom: 40px;
+      margin-bottom: 36px;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 1040px) {
       .charts-row {
         grid-template-columns: 1fr;
-        gap: 36px;
+        gap: 32px;
       }
+    }
+
+    .analytics-card {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .pie-col {
       min-width: 0;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      justify-content: space-between;
     }
 
     .pie-section {
       width: 100%;
+      flex: 1;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 36px;
+      justify-content: flex-start;
+      gap: 14px;
       min-width: 0;
-      margin-top: 4px;
     }
 
     .pie-box {
-      width: 268px;
-      height: 268px;
+      width: 172px;
+      height: 172px;
       position: relative;
       flex-shrink: 0;
     }
@@ -335,32 +342,37 @@
     .pie-legend {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      white-space: nowrap;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
     }
 
     .pie-leg-row {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 9px;
       cursor: pointer;
+      min-width: 0;
     }
 
     .pie-swatch {
-      width: 16px;
-      height: 16px;
+      width: 11px;
+      height: 11px;
       border-radius: 3px;
       flex-shrink: 0;
     }
 
     .pie-leg-title {
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .pie-leg-sub {
-      font-size: 12.5px;
+      font-size: 11.5px;
       color: var(--ink-sec);
       font-variant-numeric: tabular-nums;
     }
@@ -684,9 +696,9 @@
 
     .growth-canvas-wrap {
       width: 100%;
-      height: 294px;
+      height: 218px;
       position: relative;
-      margin-top: 4px;
+      margin-top: auto;
     }
 
     .contrib-list {
@@ -751,6 +763,281 @@
       color: var(--ink);
     }
 
+    /* 12-Month Payouts Forecast Column (Inside Unified Horizontal Block) */
+    .payouts-col-wrap {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .payouts-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .payouts-title {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .payouts-sub {
+      font-size: 12px;
+      color: var(--ink-sec);
+      margin-top: 3px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .payouts-controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .payouts-tax-link {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-sec);
+      background: none;
+      border: none;
+      border-bottom: 1px dashed currentColor;
+      padding: 0 0 1px;
+      cursor: pointer;
+      transition: color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .payouts-tax-link:hover {
+      color: var(--ink);
+    }
+
+    .payouts-chart-area {
+      position: relative;
+      width: 100%;
+      margin-top: auto;
+    }
+
+    .payouts-scale-layer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 136px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .scale-tick-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1px solid rgba(210, 210, 215, 0.55);
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .scale-tick-lbl {
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      background: rgba(255, 255, 255, 0.85);
+      padding-right: 4px;
+      line-height: 1;
+      transform: translateY(-50%);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .scale-avg-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1px dashed rgba(110, 110, 115, 0.65);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .scale-avg-lbl {
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--ink-sec);
+      background: rgba(255, 255, 255, 0.9);
+      padding-left: 4px;
+      line-height: 1;
+      transform: translateY(-115%);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .payouts-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 5px;
+      align-items: end;
+      padding-left: 28px;
+    }
+
+    .payout-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      min-width: 0;
+    }
+
+    .payout-bar-box {
+      width: 100%;
+      height: 136px;
+      border-radius: 6px;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .payout-bar-stack {
+      width: 100%;
+      border-radius: 5px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      transition: height 0.25s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .payout-col:hover .payout-bar-stack,
+    .payout-col.active .payout-bar-stack {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .payout-seg-div {
+      width: 100%;
+      background: var(--c-stocks);
+      transition: height 0.25s ease;
+    }
+
+    .payout-seg-coup {
+      width: 100%;
+      background: var(--c-bonds);
+      transition: height 0.25s ease;
+    }
+
+    .payout-month-lbl {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-top: 6px;
+      text-transform: capitalize;
+    }
+
+    /* Floating Hover Popover for Month Details */
+    .payout-popover {
+      position: fixed;
+      z-index: 1000;
+      width: 320px;
+      max-width: calc(100vw - 24px);
+      background: #ffffff;
+      border: 1px solid var(--divider);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+      display: none;
+      pointer-events: auto;
+    }
+
+    .payout-popover.visible {
+      display: block;
+    }
+
+    .pop-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--divider-light);
+      margin-bottom: 8px;
+    }
+
+    .pop-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .pop-total {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--pos);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pop-sub-split {
+      display: flex;
+      gap: 12px;
+      font-size: 11.5px;
+      color: var(--ink-sec);
+      margin-bottom: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pop-list {
+      max-height: 210px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .pop-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      gap: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pop-item-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .pop-item-name {
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pop-tag {
+      font-size: 10px;
+      color: var(--ink-muted);
+      background: var(--bg-alt);
+      padding: 1px 5px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .pop-item-sum {
+      font-weight: 600;
+      color: var(--pos);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -777,29 +1064,52 @@
     <!-- Apple Compare-Style 3-Column Asset Class Comparison -->
     <div class="compare-grid" id="compareGrid"></div>
 
-    <!-- Unified Horizontal Charts Block: Growth Chart (Left) + Pie Chart (Right) -->
+    <!-- Unified 3-Column Horizontal Analytics Block: Growth + Structure + 12m Payouts -->
     <div class="charts-row">
-      <!-- Portfolio Growth & Net Contributions Chart (Left, Dropbox Wave Style) -->
-      <div class="growth-section">
-        <div class="growth-header">
-          <div class="growth-title">Динамика капитала</div>
+      <!-- 1. Portfolio Growth & Net Contributions Chart (Left) -->
+      <div class="growth-section analytics-card">
+        <div class="growth-header" style="margin-bottom: 10px;">
+          <div>
+            <div class="growth-title">Динамика капитала</div>
+            <div class="payouts-sub">Капитал и чистые вложения</div>
+          </div>
         </div>
         <div class="growth-canvas-wrap">
           <canvas id="growthChart"></canvas>
         </div>
       </div>
 
-      <!-- Clean Solid Pie Chart + Legend (Right) -->
-      <div class="pie-col">
-        <div class="growth-header" style="width: 100%; justify-content: space-between; align-items: baseline;">
-          <div class="growth-title" id="pieTitle">Структура активов</div>
-          <button type="button" id="pieResetBtn" class="mini-link" style="display: none; font-size: 13px; padding: 0;" onclick="setFilter('all', document.querySelector('.fpill[data-cat=\'all\']'))">← Все активы</button>
+      <!-- 2. Clean Solid Pie Chart + Legend (Center) -->
+      <div class="pie-col analytics-card">
+        <div class="growth-header" style="width: 100%; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+          <div>
+            <div class="growth-title" id="pieTitle">Структура активов</div>
+            <div class="payouts-sub">Доли классов и бумаг</div>
+          </div>
+          <button type="button" id="pieResetBtn" class="mini-link" style="display: none; font-size: 12px; padding: 0;" onclick="setFilter('all', document.querySelector('.fpill[data-cat=\'all\']'))">← Все</button>
         </div>
         <div class="pie-section">
           <div class="pie-box">
             <canvas id="pieChart"></canvas>
           </div>
           <div class="pie-legend" id="pieLegend"></div>
+        </div>
+      </div>
+
+      <!-- 3. 12-Month Payouts Stacked Column Chart (Right) -->
+      <div class="payouts-col-wrap analytics-card" id="payoutsSection">
+        <div class="payouts-header">
+          <div>
+            <div class="payouts-title">Выплаты 12 мес.</div>
+            <div class="payouts-sub" id="payoutsSummary">Расчёт купонов и дивидендов...</div>
+          </div>
+          <div class="payouts-controls">
+            <button type="button" class="payouts-tax-link" id="btnTaxToggle" onclick="togglePayoutTax()" title="Нажмите для переключения: до НДФЛ / на руки (−13%)">До НДФЛ</button>
+          </div>
+        </div>
+        <div class="payouts-chart-area">
+          <div class="payouts-scale-layer" id="payoutsScaleLayer"></div>
+          <div class="payouts-grid" id="payoutsGrid"></div>
         </div>
       </div>
     </div>
@@ -837,6 +1147,9 @@
         <tfoot id="holdingsFoot"></tfoot>
       </table>
     </div>
+
+    <!-- Floating Popover for Month Payout Breakdown -->
+    <div class="payout-popover" id="payoutPopover" onmouseenter="keepPopoverOpen()" onmouseleave="scheduleHidePopover()"></div>
 
     <footer style="margin-top: 36px; font-size: 12.5px; color: var(--ink-muted);">
       <span>Данные хранятся локально в вашем браузере</span>
@@ -1146,6 +1459,7 @@
       renderPie(classes, totalValue);
       renderGrowthChart(totalValue, totalInvested, netContrib);
       renderTable(totalValue);
+      renderPayoutsBlock();
     }
 
     function renderAppleCompareColumns(classes, totalValue) {
@@ -1801,6 +2115,7 @@
 
         persist();
         renderAll();
+        syncPayoutsData(true);
         const t = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
         status.textContent = updated > 0
           ? `Обновлено в ${t} (MOEX: ${updated} из ${holdings.filter(h => h.category !== "Золото" && h.ticker).length})`
@@ -2092,6 +2407,516 @@
       event.target.value = "";
     }
 
+
+    // =========================================================================
+    // 12-MONTH PAYOUTS ENGINE (MOEX Bondization + Floaters + Dohod.ru Dividends)
+    // =========================================================================
+    const PAYOUTS_CACHE_KEY = "gsheets_payouts_cache_v2";
+    const CB_RATE_KEY = "gsheets_cb_rate_v1";
+
+    let cbKeyRate = parseFloat(localStorage.getItem(CB_RATE_KEY)) || 16.5;
+    let applyNdfl = false;
+    let payoutsCache = JSON.parse(localStorage.getItem(PAYOUTS_CACHE_KEY)) || { updatedAt: 0, bonds: {}, dividends: {} };
+    let monthlyBuckets = [];
+    let hidePopoverTimer = null;
+
+    // Fallback coupon metadata (used immediately before/if MOEX bondization responds)
+    const FALLBACK_BOND_SCHEDULES = {
+      "SU26247RMFS5": { freqMonths: 6, anchorMonth: 5, couponRub: 61.08, isFloater: false },
+      "SU26248RMFS3": { freqMonths: 6, anchorMonth: 6, couponRub: 61.08, isFloater: false },
+      "RU000A10C8F3": { freqMonths: 1, anchorMonth: 1, couponRub: 17.67, isFloater: false, matDate: "2028-07-23" },
+      "RU000A10DA74": { freqMonths: 1, anchorMonth: 1, couponRub: 17.67, isFloater: false },
+      "RU000A10CM06": { freqMonths: 1, anchorMonth: 1, couponRub: 20.55, isFloater: false },
+      "RU000A10EST2": { freqMonths: 1, anchorMonth: 1, couponRub: 17.26, isFloater: false },
+      "RU000A10ERC0": { freqMonths: 1, anchorMonth: 1, couponRub: 19.73, isFloater: false },
+      "RU000A10CZC7": { freqMonths: 1, anchorMonth: 1, couponRub: 18.49, isFloater: false },
+      "RU000A10FX18": { freqMonths: 1, anchorMonth: 1, couponRub: 18.90, isFloater: false },
+      "RU000A10D3S6": { freqMonths: 1, anchorMonth: 1, couponRub: 15.21, isFloater: false, matDate: "2028-04-02" }
+    };
+
+    // Fallback 12m dividend forecast (per share, RUB & typical payout months) — overwritten by live dohod.ru / MOEX
+    const FALLBACK_DIVIDENDS = {
+      "LKOH":  [{ month: 12, dps: 514 }, { month: 6, dps: 540 }],
+      "SBERP": [{ month: 7, dps: 35.5 }],
+      "NVTK":  [{ month: 4, dps: 46.5 }, { month: 10, dps: 38.0 }],
+      "TRNFP": [{ month: 7, dps: 177.0 }],
+      "X5":    [{ month: 7, dps: 350.0 }],
+      "MGNT":  [{ month: 7, dps: 412.0 }],
+      "BELU":  [{ month: 5, dps: 135.0 }, { month: 10, dps: 95.0 }],
+      "NMTP":  [{ month: 7, dps: 0.85 }],
+      "PLZL":  [{ month: 12, dps: 130.0 }, { month: 6, dps: 145.0 }],
+      "NLMK":  [{ month: 6, dps: 22.0 }],
+      "GMKN":  [{ month: 7, dps: 8.5 }],
+      "CHMF":  [{ month: 6, dps: 115.0 }, { month: 9, dps: 38.0 }],
+      "T":     [{ month: 12, dps: 92.5 }, { month: 7, dps: 110.0 }],
+      "MOEX":  [{ month: 5, dps: 19.5 }],
+      "YDEX":  [{ month: 4, dps: 80.0 }, { month: 10, dps: 80.0 }],
+      "OZON":  [],
+      "OZPH":  [{ month: 6, dps: 1.8 }]
+    };
+
+    const MONTH_NAMES_SHORT = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+    const MONTH_NAMES_FULL = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+    function togglePayoutTax() {
+      applyNdfl = !applyNdfl;
+      const btn = document.getElementById("btnTaxToggle");
+      if (btn) btn.textContent = applyNdfl ? "На руки (−13%)" : "До НДФЛ";
+      renderPayoutsBlock();
+    }
+
+    function promptCbRate() {
+      const val = prompt("Укажите ключевую ставку ЦБ РФ (%) для расчёта будущих купонов по флоатерам:", String(cbKeyRate));
+      if (val === null) return;
+      const parsed = parseFloat(val.replace(",", "."));
+      if (!isNaN(parsed) && parsed > 0 && parsed < 100) {
+        cbKeyRate = parsed;
+        localStorage.setItem(CB_RATE_KEY, String(cbKeyRate));
+        const btn = document.getElementById("btnCbRate");
+        if (btn) btn.textContent = `ЦБ ${fmtDecimal(cbKeyRate, 1)}%`;
+        renderPayoutsBlock();
+      }
+    }
+
+    async function fetchJsonWithProxy(targetUrl) {
+      try {
+        const res = await fetch(targetUrl);
+        if (res.ok) return await res.json();
+      } catch (e) {}
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+      ];
+      for (const p of proxies) {
+        try {
+          const res = await fetch(p);
+          if (res.ok) return await res.json();
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    async function fetchBondCouponsMoex(ticker) {
+      let allRows = [];
+      let cols = [];
+      let start = 0;
+
+      // MOEX bondization paginates by 20 rows by default; fetch all pages (up to 200 rows)
+      while (start < 200) {
+        const targetUrl = `https://iss.moex.com/iss/statistics/engines/stock/markets/bonds/bondization/${encodeURIComponent(ticker)}.json?iss.meta=off&iss.only=coupons,coupons.cursor&start=${start}`;
+        const json = await fetchJsonWithProxy(targetUrl);
+        if (!json?.coupons?.data) break;
+        if (cols.length === 0) cols = json.coupons.columns || [];
+        const pageRows = json.coupons.data;
+        if (pageRows.length === 0) break;
+        allRows = allRows.concat(pageRows);
+
+        const cursorCols = json["coupons.cursor"]?.columns || [];
+        const cursorRow = json["coupons.cursor"]?.data?.[0] || [];
+        const total = Number(cursorRow[cursorCols.indexOf("TOTAL")]) || pageRows.length;
+        const pageSize = Number(cursorRow[cursorCols.indexOf("PAGESIZE")]) || pageRows.length;
+        start += pageSize;
+        if (start >= total || pageSize <= 0) break;
+      }
+
+      if (allRows.length === 0) return null;
+
+      const idxDate = cols.indexOf("coupondate");
+      const idxStart = cols.indexOf("startdate");
+      const idxVal = cols.indexOf("value_rub");
+      const idxPrc = cols.indexOf("valueprc");
+      const idxFace = cols.indexOf("facevalue");
+
+      const today = getTodayIso();
+
+      // Detect spread from latest known coupon rate if bond is a floater
+      let knownRatePrc = null;
+      for (const r of allRows) {
+        if (r[idxPrc] !== null && Number(r[idxPrc]) > 0) {
+          knownRatePrc = Number(r[idxPrc]);
+        }
+      }
+      const estimatedSpread = knownRatePrc !== null ? Math.max(0, Math.min(6, Number((knownRatePrc - cbKeyRate).toFixed(2)))) : 2.0;
+
+      const futureCoupons = [];
+      for (const r of allRows) {
+        const cDate = r[idxDate];
+        if (!cDate || cDate < today) continue;
+        const valRub = r[idxVal] !== null ? Number(r[idxVal]) : 0;
+        const face = Number(r[idxFace]) || 1000;
+        let days = 30;
+        if (r[idxStart] && cDate) {
+          const d1 = new Date(r[idxStart]);
+          const d2 = new Date(cDate);
+          const diff = Math.round((d2 - d1) / 86400000);
+          if (diff > 0 && diff <= 370) days = diff;
+        }
+        futureCoupons.push({
+          date: cDate,
+          valueRub: valRub > 0 ? valRub : null,
+          isFloater: valRub <= 0,
+          spread: estimatedSpread,
+          days,
+          face
+        });
+      }
+      return futureCoupons;
+    }
+
+    async function fetchDohodDividends() {
+      const targetUrl = "https://www.dohod.ru/ik/analytics/dividend";
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+      ];
+      for (const url of proxies) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const htmlText = await res.text();
+          if (!htmlText || htmlText.length < 2000) continue;
+          const doc = new DOMParser().parseFromString(htmlText, "text/html");
+          const rows = doc.querySelectorAll("table tr");
+          const parsedMap = {};
+          rows.forEach(tr => {
+            const tds = tr.querySelectorAll("td");
+            if (tds.length < 5) return;
+            const rowText = tr.innerText || "";
+            const tickerMatch = rowText.match(/([A-Z]{4,5})/);
+            if (!tickerMatch) return;
+            const ticker = tickerMatch[1];
+            // Extract dividend amount and date (DD.MM.YYYY)
+            const dateMatch = rowText.match(/(\d{2})\.(\d{2})\.(20\d{2})/);
+            let dps = 0;
+            tds.forEach(td => {
+              const txt = td.textContent.trim().replace(/\s+/g, "").replace(",", ".");
+              if (/^\d+(\.\d+)?$/.test(txt)) {
+                const num = parseFloat(txt);
+                if (num > 0 && num < 5000 && dps === 0) dps = num;
+              }
+            });
+            if (dps > 0) {
+              const month = dateMatch ? parseInt(dateMatch[2], 10) : 6;
+              const dateIso = dateMatch ? `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}` : null;
+              if (!parsedMap[ticker]) parsedMap[ticker] = [];
+              parsedMap[ticker].push({ month, date: dateIso, dps, source: "dohod.ru" });
+            }
+          });
+          if (Object.keys(parsedMap).length >= 5) {
+            return parsedMap;
+          }
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    async function syncPayoutsData(force = false) {
+      const now = Date.now();
+      const cacheFresh = !force && (now - (payoutsCache.updatedAt || 0) < 12 * 3600 * 1000) && Object.keys(payoutsCache.bonds || {}).length > 0;
+      if (cacheFresh) {
+        renderPayoutsBlock();
+        return;
+      }
+
+      const bondTickers = holdings.filter(h => h.category === "Облигации" && h.ticker).map(h => h.ticker);
+      const newBonds = { ...(payoutsCache.bonds || {}) };
+
+      for (const t of bondTickers) {
+        const schedule = await fetchBondCouponsMoex(t);
+        if (schedule && schedule.length > 0) {
+          newBonds[t] = schedule;
+        }
+      }
+
+      const dohodDivs = await fetchDohodDividends();
+      payoutsCache = {
+        updatedAt: now,
+        bonds: newBonds,
+        dividends: dohodDivs || payoutsCache.dividends || {}
+      };
+      localStorage.setItem(PAYOUTS_CACHE_KEY, JSON.stringify(payoutsCache));
+      renderPayoutsBlock();
+    }
+
+    function build12MonthBuckets() {
+      const now = new Date();
+      const startYear = now.getFullYear();
+      const startMonth = now.getMonth(); // 0..11
+      const todayIso = getTodayIso();
+
+      const buckets = [];
+      for (let i = 0; i < 12; i++) {
+        const d = new Date(startYear, startMonth + i, 1);
+        const y = d.getFullYear();
+        const m = d.getMonth();
+        const ym = `${y}-${String(m + 1).padStart(2, "0")}`;
+        buckets.push({
+          ym,
+          year: y,
+          monthIdx: m,
+          shortName: MONTH_NAMES_SHORT[m],
+          fullName: `${MONTH_NAMES_FULL[m]} ${y}`,
+          bondTotal: 0,
+          stockTotal: 0,
+          items: []
+        });
+      }
+
+      const bucketByYm = {};
+      buckets.forEach(b => { bucketByYm[b.ym] = b; });
+      const taxFactor = applyNdfl ? 0.87 : 1.0;
+
+      holdings.forEach(h => {
+        if (!h.qty || h.qty <= 0) return;
+
+        if (h.category === "Облигации") {
+          const liveSched = h.ticker && payoutsCache.bonds?.[h.ticker];
+          if (Array.isArray(liveSched) && liveSched.length > 0) {
+            liveSched.forEach(c => {
+              if (!c.date || c.date < todayIso) return;
+              const ym = c.date.slice(0, 7);
+              const target = bucketByYm[ym];
+              if (!target) return;
+
+              let perBond = c.valueRub;
+              let tag = "";
+              const knownMeta = h.ticker ? FALLBACK_BOND_SCHEDULES[h.ticker] : null;
+              if (!perBond) {
+                if (knownMeta && knownMeta.isFloater === false && knownMeta.couponRub > 0) {
+                  perBond = knownMeta.couponRub;
+                } else {
+                  const effRate = cbKeyRate + (c.spread || 2.0);
+                  perBond = (c.face || 1000) * (effRate / 100) * ((c.days || 30) / 365);
+                  tag = "флоатер";
+                }
+              }
+              const sum = perBond * h.qty * taxFactor;
+              target.bondTotal += sum;
+              target.items.push({
+                date: c.date,
+                dayLabel: formatShortDate(c.date).slice(0, 5),
+                name: h.name,
+                type: "bond",
+                tag,
+                amount: sum
+              });
+            });
+          } else {
+            const fb = (h.ticker && FALLBACK_BOND_SCHEDULES[h.ticker]) || { freqMonths: 1, anchorMonth: 1, couponRub: 17.5, isFloater: false };
+            buckets.forEach(b => {
+              const m1 = b.monthIdx + 1;
+              const estDate = `${b.ym}-15`;
+              if (fb.matDate && estDate > fb.matDate) return;
+              const matches = fb.freqMonths === 1 || ((m1 - fb.anchorMonth) % fb.freqMonths === 0);
+              if (!matches) return;
+              let perBond = fb.couponRub;
+              let tag = "";
+              if (fb.isFloater) {
+                const effRate = cbKeyRate + (fb.spread || 2.0);
+                perBond = 1000 * (effRate / 100) * (30 / 365);
+                tag = "флоатер";
+              }
+              const sum = perBond * h.qty * taxFactor;
+              b.bondTotal += sum;
+              b.items.push({
+                date: `${b.ym}-15`,
+                dayLabel: `15.${String(m1).padStart(2, "0")}`,
+                name: h.name,
+                type: "bond",
+                tag,
+                amount: sum
+              });
+            });
+          }
+        } else if (h.category === "Акции" && h.ticker) {
+          const liveDivs = payoutsCache.dividends?.[h.ticker];
+          const divList = (Array.isArray(liveDivs) && liveDivs.length > 0) ? liveDivs : (FALLBACK_DIVIDENDS[h.ticker] || []);
+          divList.forEach(dv => {
+            const target = buckets.find(b => (b.monthIdx + 1) === dv.month);
+            if (!target) return;
+            const sum = dv.dps * h.qty * taxFactor;
+            if (sum <= 0) return;
+            target.stockTotal += sum;
+            const dayStr = dv.date ? formatShortDate(dv.date).slice(0, 5) : `~15.${String(dv.month).padStart(2, "0")}`;
+            target.items.push({
+              date: dv.date || `${target.ym}-15`,
+              dayLabel: dayStr,
+              name: h.name,
+              type: "stock",
+              tag: "прогноз",
+              amount: sum
+            });
+          });
+        }
+      });
+
+      buckets.forEach(b => {
+        b.items.sort((a, b2) => a.date.localeCompare(b2.date));
+      });
+      return buckets;
+    }
+
+    function fmtCompactK(v) {
+      if (v <= 0) return "—";
+      if (v >= 1000) {
+        return Math.round(v / 1000) + " т.";
+      }
+      return Math.round(v) + " ₽";
+    }
+
+    function renderPayoutsBlock() {
+      monthlyBuckets = build12MonthBuckets();
+      const totalYear = monthlyBuckets.reduce((s, b) => s + b.bondTotal + b.stockTotal, 0);
+      const avgMonth = totalYear / 12;
+      const rawMax = Math.max(...monthlyBuckets.map(b => b.bondTotal + b.stockTotal), 1);
+
+      // Choose clean round step (e.g., 50k, 100k, 25k, 10k) for 2 reference ticks
+      let step = 100000;
+      if (rawMax <= 30000) step = 10000;
+      else if (rawMax <= 75000) step = 25000;
+      else if (rawMax <= 160000) step = 50000;
+      else if (rawMax <= 350000) step = 100000;
+      else step = Math.ceil(rawMax / 3 / 50000) * 50000;
+
+      const scaleMax = Math.max(rawMax * 1.06, step * 2);
+
+      const summaryEl = document.getElementById("payoutsSummary");
+      if (summaryEl) {
+        summaryEl.innerHTML = `<strong style="color:var(--ink);">${fmtMoney(totalYear)}</strong> · ~${fmtMoney(avgMonth)}/мес`;
+      }
+
+      const scaleEl = document.getElementById("payoutsScaleLayer");
+      if (scaleEl) {
+        const ticks = [];
+        for (let v = step; v < scaleMax * 0.96; v += step) {
+          ticks.push(v);
+        }
+        // Keep at most 2–3 clean horizontal grid lines so the chart stays airy
+        const visibleTicks = ticks.length > 3 ? [ticks[0], ticks[ticks.length - 1]] : ticks;
+
+        let scaleHtml = visibleTicks.map(v => {
+          const bottomPct = (v / scaleMax) * 100;
+          const lbl = v >= 1000 ? `${Math.round(v / 1000)}т` : `${v}`;
+          return `
+            <div class="scale-tick-line" style="bottom:${bottomPct.toFixed(1)}%;">
+              <span class="scale-tick-lbl">${lbl}</span>
+            </div>
+          `;
+        }).join("");
+
+        if (avgMonth > 0) {
+          const avgBottomPct = Math.min(96, (avgMonth / scaleMax) * 100);
+          const avgLbl = avgMonth >= 1000 ? `ср. ${Math.round(avgMonth / 1000)}т` : `ср. ${Math.round(avgMonth)}`;
+          scaleHtml += `
+            <div class="scale-avg-line" style="bottom:${avgBottomPct.toFixed(1)}%;">
+              <span class="scale-avg-lbl">${avgLbl}</span>
+            </div>
+          `;
+        }
+        scaleEl.innerHTML = scaleHtml;
+      }
+
+      const gridEl = document.getElementById("payoutsGrid");
+      if (!gridEl) return;
+
+      gridEl.innerHTML = monthlyBuckets.map((b, idx) => {
+        const mTotal = b.bondTotal + b.stockTotal;
+        const totalPct = mTotal > 0 ? Math.max(6, (mTotal / scaleMax) * 100) : 3;
+        const bondShare = mTotal > 0 ? (b.bondTotal / mTotal) * 100 : 0;
+        const stockShare = mTotal > 0 ? (b.stockTotal / mTotal) * 100 : 0;
+        const emptyBg = mTotal <= 0 ? "background: var(--divider-light);" : "";
+        return `
+          <div class="payout-col" data-midx="${idx}"
+               onmouseenter="showPayoutPopover(${idx}, this)"
+               onmouseleave="scheduleHidePopover()"
+               onclick="showPayoutPopover(${idx}, this)">
+            <div class="payout-bar-box">
+              <div class="payout-bar-stack" style="height:${totalPct.toFixed(1)}%; ${emptyBg}">
+                <div class="payout-seg-div" style="height:${stockShare.toFixed(1)}%;"></div>
+                <div class="payout-seg-coup" style="height:${bondShare.toFixed(1)}%;"></div>
+              </div>
+            </div>
+            <div class="payout-month-lbl">${b.shortName}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function showPayoutPopover(idx, el) {
+      if (hidePopoverTimer) {
+        clearTimeout(hidePopoverTimer);
+        hidePopoverTimer = null;
+      }
+      const b = monthlyBuckets[idx];
+      const pop = document.getElementById("payoutPopover");
+      if (!b || !pop) return;
+
+      document.querySelectorAll(".payout-col").forEach(c => c.classList.remove("active"));
+      if (el) el.classList.add("active");
+
+      const mTotal = b.bondTotal + b.stockTotal;
+      const itemsHtml = b.items.length > 0
+        ? b.items.map(it => {
+            const dotCol = it.type === "bond" ? "var(--c-bonds)" : "var(--c-stocks)";
+            return `
+              <div class="pop-item">
+                <div class="pop-item-left">
+                  <span class="c-dot" style="background:${dotCol}; flex-shrink:0;"></span>
+                  <span style="color:var(--ink-muted); font-size:11.5px;">${it.dayLabel}</span>
+                  <span class="pop-item-name">${it.name}</span>
+                  ${it.tag ? `<span class="pop-tag">${it.tag}</span>` : ""}
+                </div>
+                <span class="pop-item-sum">+${fmtMoney(it.amount)}</span>
+              </div>
+            `;
+          }).join("")
+        : `<div style="font-size:12px; color:var(--ink-muted); padding:6px 0;">Выплат в этом месяце не ожидается</div>`;
+
+      pop.innerHTML = `
+        <div class="pop-head">
+          <span class="pop-title">${b.fullName}</span>
+          <span class="pop-total">+${fmtMoney(mTotal)}</span>
+        </div>
+        <div class="pop-sub-split">
+          <span>Облигации: <strong>${fmtMoney(b.bondTotal)}</strong></span>
+          <span>Акции: <strong>${fmtMoney(b.stockTotal)}</strong></span>
+        </div>
+        <div class="pop-list">${itemsHtml}</div>
+      `;
+
+      pop.classList.add("visible");
+
+      // Position cleanly above the hovered column within viewport bounds
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        const popW = pop.offsetWidth || 320;
+        const popH = pop.offsetHeight || 220;
+        let left = rect.left + rect.width / 2 - popW / 2;
+        left = Math.max(12, Math.min(window.innerWidth - popW - 12, left));
+        let top = rect.top - popH - 10;
+        if (top < 12) {
+          top = rect.bottom + 10;
+        }
+        pop.style.left = `${left}px`;
+        pop.style.top = `${top}px`;
+      }
+    }
+
+    function keepPopoverOpen() {
+      if (hidePopoverTimer) {
+        clearTimeout(hidePopoverTimer);
+        hidePopoverTimer = null;
+      }
+    }
+
+    function scheduleHidePopover() {
+      hidePopoverTimer = setTimeout(() => {
+        const pop = document.getElementById("payoutPopover");
+        if (pop) pop.classList.remove("visible");
+        document.querySelectorAll(".payout-col").forEach(c => c.classList.remove("active"));
+      }, 180);
+    }
+
     (async function bootstrap() {
       if (!Array.isArray(holdings) || holdings.length === 0) {
         holdings = structuredClone(DEFAULT_HOLDINGS);
@@ -2102,6 +2927,7 @@
       persist();
       renderAll();
       refreshMarketData();
+      syncPayoutsData(false);
     })();
   </script>
 </body>
