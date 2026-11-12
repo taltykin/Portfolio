@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Инвестиционный портфель — Цель: Недвижимость в Москве</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-page: #f4f6f9;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-hover: #f1f5f9;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --success: #059669;
+      --success-soft: #ecfdf5;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --warning: #d97706;
+      --warning-soft: #fffbeb;
+      --gold: #b45309;
+      --gold-soft: #fef3c7;
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Inter, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    /* Top Bar */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .header-title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .header-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 15px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover {
+      background: var(--bg-subtle);
+      border-color: #94a3b8;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #ffffff;
+      border-color: var(--success);
+    }
+
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    /* Market Ticker Strip */
+    .ticker-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      font-size: 13px;
+    }
+
+    .ticker-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ticker-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .ticker-value {
+      font-weight: 700;
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .badge-gold {
+      background: var(--gold-soft);
+      color: var(--gold);
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .sync-status {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* KPI Summary Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .kpi-sub {
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .text-pos { color: var(--success); }
+    .text-neg { color: var(--danger); }
+    .text-muted { color: var(--text-muted); }
+
+    /* Goal & Target Allocation Section */
+    .goal-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 960px) {
+      .goal-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .progress-wrapper {
+      margin-bottom: 18px;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #059669);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .allocation-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alloc-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .alloc-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .alloc-bar-bg {
+      height: 8px;
+      background: #f1f5f9;
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .alloc-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+    }
+
+    .chart-box {
+      position: relative;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Filter Tabs & Search */
+    .table-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    .tab-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-input {
+      padding: 8px 14px;
+      font-size: 13px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      color: var(--text-main);
+      min-width: 240px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    /* Table */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    thead th {
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    thead th:hover {
+      color: var(--text-main);
+      background: #f1f5f9;
+    }
+
+    tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      font-variant-numeric: tabular-nums;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--bg-hover);
+    }
+
+    .num {
+      text-align: right;
+    }
+
+    .asset-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .asset-ticker {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .pill-bond { background: #eff6ff; color: #1d4ed8; }
+    .pill-stock { background: #ecfdf5; color: #047857; }
+    .pill-gold { background: #fef3c7; color: #b45309; }
+
+    .action-icon-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .action-icon-btn:hover {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-color: #fecaca;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 460px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15);
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      color: var(--text-main);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-title">
+        <h1>Инвестиционный портфель</h1>
+        <p>Накопление капитала на недвижимость в Москве • Целевой баланс: 60% Облигации / 25% Акции / 15% Золото</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" id="btnRefresh" onclick="refreshMarketData()">
+          ↻ Обновить цены MOEX
+        </button>
+        <button class="btn btn-success" onclick="openTradeModal()">
+          + Добавить сделку
+        </button>
+        <button class="btn" onclick="exportCSV()">
+          ↓ Экспорт CSV
+        </button>
+        <label class="btn" style="cursor: pointer;">
+          ↑ Импорт CSV
+          <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)" />
+        </label>
+        <button class="btn" onclick="resetToDefault()" title="Сбросить к исходному портфелю">
+          Сброс
+        </button>
+      </div>
+    </div>
+
+    <!-- Market Ticker Strip -->
+    <div class="ticker-bar">
+      <div class="ticker-items">
+        <div class="ticker-item">
+          <span class="ticker-label">Золото XAU/USD:</span>
+          <span class="ticker-value" id="xauUsdVal">$2,740.00</span>
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-label">Курс USD/RUB:</span>
+          <span class="ticker-value" id="usdRubVal">97.50 ₽</span>
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-label">1 г чистого золота (999):</span>
+          <span class="badge-gold" id="goldGramRub">8 589 ₽/г</span>
+        </div>
+        <div class="ticker-item">
+          <span class="ticker-label">Прогноз купонов + див. (2027):</span>
+          <span class="ticker-value text-pos">~660 230 ₽/год (55 020 ₽/мес)</span>
+        </div>
+      </div>
+      <div class="sync-status" id="syncStatus">Данные актуальны (локальный кэш)</div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Общая стоимость портфеля</div>
+        <div class="kpi-value" id="kpiTotalValue">0 ₽</div>
+        <div class="kpi-sub text-muted" id="kpiInvestedSub">Вложено: 0 ₽</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Нереализованная прибыль (P/L)</div>
+        <div class="kpi-value" id="kpiTotalPL">0 ₽</div>
+        <div class="kpi-sub" id="kpiTotalPLPct">0.00%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Облигации (защитный слой)</div>
+        <div class="kpi-value" id="kpiBondsValue">0 ₽</div>
+        <div class="kpi-sub text-muted" id="kpiBondsShare">Доля: 0.0% (цель 60%)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Акции и Физическое золото</div>
+        <div class="kpi-value" id="kpiRiskValue">0 ₽</div>
+        <div class="kpi-sub text-muted" id="kpiRiskShare">Акции: 0% • Золото: 0%</div>
+      </div>
+    </div>
+
+    <!-- Goal & Allocation Grid -->
+    <div class="goal-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Движение к целевой структуре и цели (Квартира в Москве)</div>
+          <span style="font-size: 12px; color: var(--text-muted);" id="goalTargetLabel">Цель: 15 000 000 ₽</span>
+        </div>
+
+        <div class="progress-wrapper">
+          <div class="progress-labels">
+            <span>Накоплено на первоначальный взнос / покупку</span>
+            <span id="goalPercentText">0.0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="goalProgressBar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="allocation-bars">
+          <div class="alloc-row">
+            <div class="alloc-meta">
+              <span><strong>Облигации</strong> (цель: 60%)</span>
+              <span id="allocBondsLabel">0.0% • нужно докупить: 0 ₽</span>
+            </div>
+            <div class="alloc-bar-bg">
+              <div class="alloc-bar-fill" id="allocBondsBar" style="width: 0%; background: #2563eb;"></div>
+            </div>
+          </div>
+
+          <div class="alloc-row">
+            <div class="alloc-meta">
+              <span><strong>Акции РФ</strong> (цель: 25%)</span>
+              <span id="allocStocksLabel">0.0%</span>
+            </div>
+            <div class="alloc-bar-bg">
+              <div class="alloc-bar-fill" id="allocStocksBar" style="width: 0%; background: #059669;"></div>
+            </div>
+          </div>
+
+          <div class="alloc-row">
+            <div class="alloc-meta">
+              <span><strong>Физическое золото (монеты)</strong> (цель: 15%)</span>
+              <span id="allocGoldLabel">0.0%</span>
+            </div>
+            <div class="alloc-bar-bg">
+              <div class="alloc-bar-fill" id="allocGoldBar" style="width: 0%; background: #d97706;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Распределение активов</div>
+        </div>
+        <div class="chart-box">
+          <canvas id="allocationChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Controls -->
+    <div class="table-controls">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="setFilter('all', this)">Все активы</button>
+        <button class="tab-btn" onclick="setFilter('Облигации', this)">Облигации</button>
+        <button class="tab-btn" onclick="setFilter('Акции', this)">Акции</button>
+        <button class="tab-btn" onclick="setFilter('Золото', this)">Золото (монеты)</button>
+      </div>
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="Поиск по тикеру, ISIN или названию..."
+        oninput="renderTable()"
+      />
+    </div>
+
+    <!-- Assets Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortTable('name')">Актив / ISIN</th>
+            <th onclick="sortTable('category')">Класс</th>
+            <th class="num" onclick="sortTable('qty')">Кол-во</th>
+            <th class="num" onclick="sortTable('avgPrice')">Ср. цена</th>
+            <th class="num" onclick="sortTable('currPrice')">Тек. цена</th>
+            <th class="num" onclick="sortTable('totalValue')">Стоимость, ₽</th>
+            <th class="num" onclick="sortTable('plRub')">Прибыль, ₽</th>
+            <th class="num" onclick="sortTable('plPct')">Дох-ть, %</th>
+            <th class="num" onclick="sortTable('share')">Доля, %</th>
+            <th class="num">Действие</th>
+          </tr>
+        </thead>
+        <tbody id="portfolioTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add/Edit Trade Modal -->
+  <div class="modal-backdrop" id="tradeModal">
+    <div class="modal">
+      <h2>Зафиксировать сделку</h2>
+      <div class="form-group">
+        <label>Класс актива</label>
+        <select id="mCategory" onchange="onCategoryChange()">
+          <option value="Облигации">Облигации (MOEX)</option>
+          <option value="Акции">Акции (MOEX)</option>
+          <option value="Золото">Золото (инвестиционные монеты)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Тикер / ISIN</label>
+          <input type="text" id="mTicker" placeholder="Например: RU000A10D3S6" />
+        </div>
+        <div class="form-group">
+          <label>Режим торгов (Board)</label>
+          <select id="mBoard">
+            <option value="TQCB">TQCB (Корп. бонды)</option>
+            <option value="TQOB">TQOB (ОФЗ)</option>
+            <option value="TQBR">TQBR (Акции)</option>
+            <option value="GOLD">GOLD (Физич. золото)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Наименование бумаги / монеты</label>
+        <input type="text" id="mName" placeholder="Например: Селигдар 001Р-06" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Количество (шт.)</label>
+          <input type="number" id="mQty" step="1" placeholder="100" />
+        </div>
+        <div class="form-group">
+          <label>Цена сделки (в рублях за 1 шт.)</label>
+          <input type="number" id="mPrice" step="0.01" placeholder="987.80" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Тип операции</label>
+        <select id="mSide">
+          <option value="buy">Покупка (добавить / усреднить)</option>
+          <option value="sell">Продажа (уменьшить позицию)</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeTradeModal()">Отмена</button>
+        <button class="btn btn-primary" onclick="saveTrade()">Сохранить сделку</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Начальный портфель (28 биржевых активов + золотые монеты)
+    const INITIAL_PORTFOLIO = [
+      // Облигации (10 выпусков)
+      { ticker: "SU26247RMFS5", name: "ОФЗ 26247", category: "Облигации", board: "TQOB", qty: 400, avgPrice: 796.90, currPrice: 805.20, faceValue: 1000 },
+      { ticker: "SU26248RMFS3", name: "ОФЗ 26248", category: "Облигации", board: "TQOB", qty: 400, avgPrice: 795.00, currPrice: 803.50, faceValue: 1000 },
+      { ticker: "RU000A10C8F3", name: "Брусника 002P-04", category: "Облигации", board: "TQCB", qty: 409, avgPrice: 978.00, currPrice: 984.50, faceValue: 1000 },
+      { ticker: "RU000A10DA74", name: "Эталон-Финанс 002P-04", category: "Облигации", board: "TQCB", qty: 335, avgPrice: 982.00, currPrice: 989.00, faceValue: 1000 },
+      { ticker: "RU000A10EST2", name: "Эталон-Финанс 002P-05", category: "Облигации", board: "TQCB", qty: 400, avgPrice: 985.00, currPrice: 991.20, faceValue: 1000 },
+      { ticker: "RU000A10CM06", name: "АПРИ БО-002Р-11", category: "Облигации", board: "TQCB", qty: 100, avgPrice: 990.00, currPrice: 996.00, faceValue: 1000 },
+      { ticker: "RU000A10ERC0", name: "АПРИ БО-002Р-14", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 992.00, currPrice: 998.50, faceValue: 1000 },
+      { ticker: "RU000A10CZC7", name: "Аэрофьюэлз 002Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 981.50, currPrice: 988.00, faceValue: 1000 },
+      { ticker: "RU000A10FX18", name: "Фабрика ПО 001Р-01", category: "Облигации", board: "TQCB", qty: 100, avgPrice: 981.00, currPrice: 986.40, faceValue: 1000 },
+      { ticker: "RU000A10D3S6", name: "Селигдар 001Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 987.80, currPrice: 992.10, faceValue: 1000 },
+
+      // Акции РФ (17 эмитентов)
+      { ticker: "SBERP", name: "Сбербанк (ап)", category: "Акции", board: "TQBR", qty: 1100, avgPrice: 278.50, currPrice: 304.20 },
+      { ticker: "X5", name: "Корп. центр ИКС 5", category: "Акции", board: "TQBR", qty: 183, avgPrice: 2810.00, currPrice: 3120.00 },
+      { ticker: "TRNFP", name: "Транснефть (ап)", category: "Акции", board: "TQBR", qty: 200, avgPrice: 1290.00, currPrice: 1365.00 },
+      { ticker: "LKOH", name: "НК ЛУКОЙЛ", category: "Акции", board: "TQBR", qty: 40, avgPrice: 6850.00, currPrice: 7190.00 },
+      { ticker: "NVTK", name: "НОВАТЭК", category: "Акции", board: "TQBR", qty: 300, avgPrice: 1040.00, currPrice: 1125.00 },
+      { ticker: "MGNT", name: "Магнит", category: "Акции", board: "TQBR", qty: 60, avgPrice: 4950.00, currPrice: 5180.00 },
+      { ticker: "BELU", name: "НоваБев Групп", category: "Акции", board: "TQBR", qty: 450, avgPrice: 540.00, currPrice: 572.00 },
+      { ticker: "NMTP", name: "НМТП", category: "Акции", board: "TQBR", qty: 20000, avgPrice: 9.20, currPrice: 9.85 },
+      { ticker: "PLZL", name: "Полюс", category: "Акции", board: "TQBR", qty: 60, avgPrice: 1480.00, currPrice: 1640.00 },
+      { ticker: "NLMK", name: "НЛМК", category: "Акции", board: "TQBR", qty: 600, avgPrice: 142.00, currPrice: 154.50 },
+      { ticker: "GMKN", name: "ГМК Норильский никель", category: "Акции", board: "TQBR", qty: 860, avgPrice: 118.00, currPrice: 126.40 },
+      { ticker: "CHMF", name: "Северсталь", category: "Акции", board: "TQBR", qty: 120, avgPrice: 1260.00, currPrice: 1340.00 },
+      { ticker: "T", name: "Т-Технологии", category: "Акции", board: "TQBR", qty: 400, avgPrice: 2890.00, currPrice: 3180.00 },
+      { ticker: "MOEX", name: "Московская Биржа", category: "Акции", board: "TQBR", qty: 500, avgPrice: 198.00, currPrice: 214.50 },
+      { ticker: "YDEX", name: "МКПАО Яндекс", category: "Акции", board: "TQBR", qty: 50, avgPrice: 3920.00, currPrice: 4250.00 },
+      { ticker: "OZON", name: "МКПАО Озон", category: "Акции", board: "TQBR", qty: 30, avgPrice: 3450.00, currPrice: 3890.00 },
+      { ticker: "OZPH", name: "Озон Фармацевтика", category: "Акции", board: "TQBR", qty: 4000, avgPrice: 44.50, currPrice: 51.20 },
+
+      // Физическое золото (инвестиционные монеты)
+      { ticker: "COIN-GP", name: "Георгий Победоносец (7.78 г Au)", category: "Золото", board: "GOLD", qty: 12, avgPrice: 61500.00, currPrice: 71800.00, pureGrams: 7.78, premium: 1.075 },
+      { ticker: "COIN-N2-10", name: "Николай II 10 руб. (7.74 г Au)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 64000.00, currPrice: 75200.00, pureGrams: 7.74, premium: 1.13 }
+    ];
+
+    const GOAL_TARGET_RUB = 15000000;
+    let portfolio = JSON.parse(localStorage.getItem("user_portfolio_light_v1")) || structuredClone(INITIAL_PORTFOLIO);
+    let currentFilter = "all";
+    let sortState = { key: "totalValue", dir: "desc" };
+    let allocChart = null;
+    let marketRates = { xauUsd: 2740.0, usdRub: 97.50 };
+
+    function fmtRub(num) {
+      return new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", maximumFractionDigits: 0 }).format(num);
+    }
+
+    function fmtNum(num, digits = 2) {
+      return new Intl.NumberFormat("ru-RU", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(num);
+    }
+
+    function saveState() {
+      localStorage.setItem("user_portfolio_light_v1", JSON.stringify(portfolio));
+    }
+
+    function recalculateAndRender() {
+      const gramPriceRub = (marketRates.xauUsd / 31.1034768) * marketRates.usdRub;
+      document.getElementById("xauUsdVal").textContent = `$${fmtNum(marketRates.xauUsd, 2)}`;
+      document.getElementById("usdRubVal").textContent = `${fmtNum(marketRates.usdRub, 2)} ₽`;
+      document.getElementById("goldGramRub").textContent = `${fmtRub(gramPriceRub)}/г`;
+
+      let totalVal = 0;
+      let totalInv = 0;
+      let bondsVal = 0;
+      let stocksVal = 0;
+      let goldVal = 0;
+
+      portfolio.forEach(item => {
+        if (item.category === "Золото" && item.pureGrams) {
+          item.currPrice = Math.round(gramPriceRub * item.pureGrams * (item.premium || 1.08));
+        }
+        const val = item.qty * item.currPrice;
+        const inv = item.qty * item.avgPrice;
+        totalVal += val;
+        totalInv += inv;
+
+        if (item.category === "Облигации") bondsVal += val;
+        else if (item.category === "Акции") stocksVal += val;
+        else if (item.category === "Золото") goldVal += val;
+      });
+
+      const plRub = totalVal - totalInv;
+      const plPct = totalInv > 0 ? (plRub / totalInv) * 100 : 0;
+
+      document.getElementById("kpiTotalValue").textContent = fmtRub(totalVal);
+      document.getElementById("kpiInvestedSub").textContent = `Вложено: ${fmtRub(totalInv)}`;
+
+      const plEl = document.getElementById("kpiTotalPL");
+      plEl.textContent = `${plRub >= 0 ? "+" : ""}${fmtRub(plRub)}`;
+      plEl.className = `kpi-value ${plRub >= 0 ? "text-pos" : "text-neg"}`;
+
+      const plPctEl = document.getElementById("kpiTotalPLPct");
+      plPctEl.textContent = `${plPct >= 0 ? "+" : ""}${fmtNum(plPct, 2)}% к вложенному`;
+      plPctEl.className = `kpi-sub ${plRub >= 0 ? "text-pos" : "text-neg"}`;
+
+      const bondsShare = totalVal > 0 ? (bondsVal / totalVal) * 100 : 0;
+      const stocksShare = totalVal > 0 ? (stocksVal / totalVal) * 100 : 0;
+      const goldShare = totalVal > 0 ? (goldVal / totalVal) * 100 : 0;
+
+      document.getElementById("kpiBondsValue").textContent = fmtRub(bondsVal);
+      document.getElementById("kpiBondsShare").textContent = `Доля: ${fmtNum(bondsShare, 1)}% (цель 60.0%)`;
+
+      document.getElementById("kpiRiskValue").textContent = fmtRub(stocksVal + goldVal);
+      document.getElementById("kpiRiskShare").textContent = `Акции: ${fmtNum(stocksShare, 1)}% • Золото: ${fmtNum(goldShare, 1)}%`;
+
+      // Goal Progress
+      const goalPct = Math.min((totalVal / GOAL_TARGET_RUB) * 100, 100);
+      document.getElementById("goalPercentText").textContent = `${fmtNum(goalPct, 1)}% (${fmtRub(totalVal)} из ${fmtRub(GOAL_TARGET_RUB)})`;
+      document.getElementById("goalProgressBar").style.width = `${goalPct}%`;
+
+      // Target Allocation Bars
+      const targetBondsRub = totalVal * 0.60;
+      const needBonds = Math.max(0, targetBondsRub - bondsVal);
+      document.getElementById("allocBondsLabel").textContent =
+        `${fmtNum(bondsShare, 1)}% (${fmtRub(bondsVal)})` + (needBonds > 0 ? ` • до цели 60%: +${fmtRub(needBonds)}` : " • Цель выполнена");
+      document.getElementById("allocBondsBar").style.width = `${Math.min(bondsShare, 100)}%`;
+
+      document.getElementById("allocStocksLabel").textContent = `${fmtNum(stocksShare, 1)}% (${fmtRub(stocksVal)})`;
+      document.getElementById("allocStocksBar").style.width = `${Math.min(stocksShare, 100)}%`;
+
+      document.getElementById("allocGoldLabel").textContent = `${fmtNum(goldShare, 1)}% (${fmtRub(goldVal)})`;
+      document.getElementById("allocGoldBar").style.width = `${Math.min(goldShare, 100)}%`;
+
+      updateChart(bondsVal, stocksVal, goldVal);
+      renderTable(totalVal);
+    }
+
+    function updateChart(bonds, stocks, gold) {
+      const ctx = document.getElementById("allocationChart").getContext("2d");
+      if (allocChart) {
+        allocChart.data.datasets[0].data = [bonds, stocks, gold];
+        allocChart.update();
+        return;
+      }
+
+      allocChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Облигации", "Акции", "Золото (монеты)"],
+          datasets: [{
+            data: [bonds, stocks, gold],
+            backgroundColor: ["#2563eb", "#059669", "#d97706"],
+            borderColor: "#ffffff",
+            borderWidth: 3,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "66%",
+          plugins: {
+            legend: {
+              position: "right",
+              labels: {
+                color: "#334155",
+                font: { size: 13, weight: "600" },
+                padding: 16
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const sum = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = sum > 0 ? ((val / sum) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${fmtRub(val)} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTable(totalPortfolioVal = null) {
+      if (totalPortfolioVal === null) {
+        totalPortfolioVal = portfolio.reduce((acc, i) => acc + i.qty * i.currPrice, 0);
+      }
+
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      let rows = portfolio.map((item, index) => {
+        const totalValue = item.qty * item.currPrice;
+        const invested = item.qty * item.avgPrice;
+        const plRub = totalValue - invested;
+        const plPct = invested > 0 ? (plRub / invested) * 100 : 0;
+        const share = totalPortfolioVal > 0 ? (totalValue / totalPortfolioVal) * 100 : 0;
+        return { ...item, index, totalValue, plRub, plPct, share };
+      });
+
+      if (currentFilter !== "all") {
+        rows = rows.filter(r => r.category === currentFilter);
+      }
+
+      if (query) {
+        rows = rows.filter(r =>
+          r.name.toLowerCase().includes(query) ||
+          r.ticker.toLowerCase().includes(query)
+        );
+      }
+
+      rows.sort((a, b) => {
+        let valA = a[sortState.key];
+        let valB = b[sortState.key];
+        if (typeof valA === "string") {
+          return sortState.dir === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return sortState.dir === "asc" ? valA - valB : valB - valA;
+      });
+
+      const tbody = document.getElementById("portfolioTableBody");
+      tbody.innerHTML = rows.map(r => {
+        const pillClass = r.category === "Облигации" ? "pill-bond" : (r.category === "Акции" ? "pill-stock" : "pill-gold");
+        const plClass = r.plRub >= 0 ? "text-pos" : "text-neg";
+        return `
+          <tr>
+            <td>
+              <div class="asset-name">${r.name}</div>
+              <div class="asset-ticker">${r.ticker} • ${r.board}</div>
+            </td>
+            <td><span class="pill ${pillClass}">${r.category}</span></td>
+            <td class="num">${fmtNum(r.qty, 0)}</td>
+            <td class="num">${fmtNum(r.avgPrice, 2)} ₽</td>
+            <td class="num"><strong>${fmtNum(r.currPrice, 2)} ₽</strong></td>
+            <td class="num"><strong>${fmtRub(r.totalValue)}</strong></td>
+            <td class="num ${plClass}">${r.plRub >= 0 ? "+" : ""}${fmtRub(r.plRub)}</td>
+            <td class="num ${plClass}">${r.plPct >= 0 ? "+" : ""}${fmtNum(r.plPct, 2)}%</td>
+            <td class="num">${fmtNum(r.share, 1)}%</td>
+            <td class="num">
+              <button class="action-icon-btn" onclick="deleteAsset(${r.index})" title="Удалить позицию">✕</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function setFilter(cat, btn) {
+      currentFilter = cat;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTable();
+    }
+
+    function sortTable(key) {
+      if (sortState.key === key) {
+        sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+      } else {
+        sortState.key = key;
+        sortState.dir = "desc";
+      }
+      renderTable();
+    }
+
+    async function refreshMarketData() {
+      const btn = document.getElementById("btnRefresh");
+      const status = document.getElementById("syncStatus");
+      btn.disabled = true;
+      btn.textContent = "↻ Загрузка с MOEX...";
+      status.textContent = "Запрос котировок Мосбиржи и золота...";
+
+      try {
+        // 1. Загрузка курсов ЦБ РФ (USD/RUB)
+        const cbrRes = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
+        if (cbrRes.ok) {
+          const cbrData = await cbrRes.json();
+          if (cbrData?.Valute?.USD?.Value) {
+            marketRates.usdRub = cbrData.Valute.USD.Value;
+          }
+        }
+
+        // 2. Загрузка котировок MOEX по секциям TQBR, TQOB, TQCB
+        const boards = ["TQBR", "TQOB", "TQCB"];
+        const priceMap = {};
+
+        for (const board of boards) {
+          const url = `https://iss.moex.com/iss/engines/stock/markets/${board === "TQBR" ? "shares" : "bonds"}/boards/${board}/securities.json?iss.meta=off&iss.only=securities,marketdata`;
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const json = await res.json();
+          const secCols = json.securities.columns;
+          const mdCols = json.marketdata.columns;
+          const secIdIdx = secCols.indexOf("SECID");
+          const prevIdx = secCols.indexOf("PREVPRICE");
+          const faceIdx = secCols.indexOf("FACEVALUE");
+          const mdIdIdx = mdCols.indexOf("SECID");
+          const lastIdx = mdCols.indexOf("LAST");
+
+          const mdMap = {};
+          json.marketdata.data.forEach(row => {
+            mdMap[row[mdIdIdx]] = row[lastIdx];
+          });
+
+          json.securities.data.forEach(row => {
+            const id = row[secIdIdx];
+            const rawPrice = mdMap[id] || row[prevIdx];
+            if (rawPrice) {
+              if (board === "TQBR") {
+                priceMap[id] = rawPrice;
+              } else {
+                const fv = row[faceIdx] || 1000;
+                priceMap[id] = (rawPrice / 100) * fv;
+              }
+            }
+          });
+        }
+
+        let updatedCount = 0;
+        portfolio.forEach(item => {
+          if (priceMap[item.ticker]) {
+            item.currPrice = Number(priceMap[item.ticker].toFixed(2));
+            updatedCount++;
+          }
+        });
+
+        saveState();
+        recalculateAndRender();
+        const nowStr = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+        status.textContent = `Обновлено в ${nowStr} (бумаг: ${updatedCount})`;
+      } catch (e) {
+        status.textContent = "Ошибка сети при обращении к MOEX (показаны сохранённые цены)";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "↻ Обновить цены MOEX";
+      }
+    }
+
+    function openTradeModal() {
+      document.getElementById("tradeModal").classList.add("open");
+    }
+
+    function closeTradeModal() {
+      document.getElementById("tradeModal").classList.remove("open");
+    }
+
+    function onCategoryChange() {
+      const cat = document.getElementById("mCategory").value;
+      const board = document.getElementById("mBoard");
+      if (cat === "Облигации") board.value = "TQCB";
+      else if (cat === "Акции") board.value = "TQBR";
+      else board.value = "GOLD";
+    }
+
+    function saveTrade() {
+      const category = document.getElementById("mCategory").value;
+      const ticker = document.getElementById("mTicker").value.trim().toUpperCase();
+      const board = document.getElementById("mBoard").value;
+      const name = document.getElementById("mName").value.trim() || ticker;
+      const qty = parseFloat(document.getElementById("mQty").value);
+      const price = parseFloat(document.getElementById("mPrice").value);
+      const side = document.getElementById("mSide").value;
+
+      if (!ticker || isNaN(qty) || qty <= 0 || isNaN(price) || price <= 0) {
+        alert("Заполните тикер, количество и цену сделки.");
+        return;
+      }
+
+      const existingIdx = portfolio.findIndex(p => p.ticker === ticker);
+      if (existingIdx !== -1) {
+        const item = portfolio[existingIdx];
+        if (side === "buy") {
+          const newTotalQty = item.qty + qty;
+          item.avgPrice = ((item.qty * item.avgPrice) + (qty * price)) / newTotalQty;
+          item.qty = newTotalQty;
+          item.currPrice = price;
+        } else {
+          item.qty = Math.max(0, item.qty - qty);
+          if (item.qty === 0) portfolio.splice(existingIdx, 1);
+        }
+      } else if (side === "buy") {
+        portfolio.push({
+          ticker,
+          name,
+          category,
+          board,
+          qty,
+          avgPrice: price,
+          currPrice: price,
+          faceValue: category === "Облигации" ? 1000 : undefined
+        });
+      }
+
+      saveState();
+      recalculateAndRender();
+      closeTradeModal();
+    }
+
+    function deleteAsset(idx) {
+      if (confirm(`Удалить «${portfolio[idx].name}» из портфеля?`)) {
+        portfolio.splice(idx, 1);
+        saveState();
+        recalculateAndRender();
+      }
+    }
+
+    function resetToDefault() {
+      if (confirm("Сбросить все ручные правки и вернуть исходный портфель?")) {
+        portfolio = structuredClone(INITIAL_PORTFOLIO);
+        saveState();
+        recalculateAndRender();
+      }
+    }
+
+    function exportCSV() {
+      const header = "ticker,name,category,board,qty,avg_price,curr_price
+";
+      const rows = portfolio.map(p =>
+        `${p.ticker},"${p.name}",${p.category},${p.board},${p.qty},${p.avgPrice.toFixed(2)},${p.currPrice.toFixed(2)}`
+      ).join("
+");
+      const blob = new Blob(["﻿" + header + rows], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "portfolio.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split(/?
+/).filter(l => l.trim());
+        if (lines.length < 2) return;
+        const parsed = [];
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].split(",");
+          if (cols.length >= 6) {
+            parsed.push({
+              ticker: cols[0].trim(),
+              name: cols[1].replace(/"/g, "").trim(),
+              category: cols[2].trim(),
+              board: cols[3].trim(),
+              qty: parseFloat(cols[4]) || 0,
+              avgPrice: parseFloat(cols[5]) || 0,
+              currPrice: parseFloat(cols[6]) || parseFloat(cols[5]) || 0
+            });
+          }
+        }
+        if (parsed.length > 0) {
+          portfolio = parsed;
+          saveState();
+          recalculateAndRender();
+          alert(`Загружено позиций: ${parsed.length}`);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Инициализация при загрузке страницы
+    recalculateAndRender();
+  </script>
+</body>
+</html>
