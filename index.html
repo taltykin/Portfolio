@@ -304,8 +304,8 @@
     }
 
     .pie-box {
-      width: 252px;
-      height: 252px;
+      width: 302px;
+      height: 302px;
       position: relative;
     }
 
@@ -761,10 +761,15 @@
     const STORAGE_KEY = "gsheets_portfolio_v10";
     let holdings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_HOLDINGS);
     let activeFilter = "all";
+    let plPeriod = "all";
+    function togglePlPeriod() {
+      plPeriod = plPeriod === "all" ? "today" : "all";
+      renderAll();
+    }
     let sortCol = "value";
     let sortAsc = false;
     let pieChart = null;
-    let rates = { usdRub: 82.66, xauUsd: 3997.80 };
+    let rates = { usdRub: 82.66, prevUsdRub: 82.66, xauUsd: 3997.80, prevXauUsd: 3997.80 };
 
     function fmtMoney(v) {
       return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(v) + " ₽";
@@ -780,63 +785,54 @@
 
     function renderAll() {
       const gramRub = rates.goldGramRubDirect || ((rates.xauUsd / 31.1034768) * rates.usdRub);
+      const prevGramRub = rates.prevGoldGramRubDirect || ((rates.xauUsd / 31.1034768) * (rates.prevUsdRub || rates.usdRub));
 
       let totalValue = 0;
       let totalInvested = 0;
+      let totalPrevValue = 0;
 
       const classes = {
-        "Акции": {
-          count: 0, invested: 0, value: 0, color: "#0071e3",
-          eyebrow: "Рост и дивиденды",
-          tagline: "Российский рынок · TQBR",
-          chip: "MOEX · TQBR",
-          icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`
-        },
-        "Облигации": {
-          count: 0, invested: 0, value: 0, color: "#34a853",
-          eyebrow: "Фиксированный поток",
-          tagline: "ОФЗ и корпоративные · TQOB / TQCB",
-          chip: "ОФЗ + КОРП",
-          icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="17" x2="12" y2="17"/></svg>`
-        },
-        "Золото": {
-          count: 0, invested: 0, value: 0, color: "#e67e22",
-          eyebrow: "Защитный актив",
-          tagline: "Инвестиционные монеты · GOLD",
-          chip: "999 · GOLD",
-          icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/></svg>`
-        }
+        "Акции": { count: 0, invested: 0, prevValue: 0, value: 0, color: "#0071e3" },
+        "Облигации": { count: 0, invested: 0, prevValue: 0, value: 0, color: "#34a853" },
+        "Золото": { count: 0, invested: 0, prevValue: 0, value: 0, color: "#e67e22" }
       };
 
       holdings.forEach(item => {
         if (item.category === "Золото" && item.pureGrams) {
-          item.currPrice = Math.round(gramRub * item.pureGrams * (item.premium || 1.08));
+          item.currPrice = Math.round(gramRub * item.pureGrams * (item.premium || 1.00));
+          item.prevPrice = Math.round(prevGramRub * item.pureGrams * (item.premium || 1.00));
         }
+        const effectivePrevPrice = (item.prevPrice !== undefined && item.prevPrice > 0) ? item.prevPrice : item.currPrice;
         const inv = (item.investedExact !== undefined) ? item.investedExact : (item.qty * item.avgPrice);
+        const prevVal = item.qty * effectivePrevPrice;
         const val = item.qty * item.currPrice;
+
         totalInvested += inv;
+        totalPrevValue += prevVal;
         totalValue += val;
 
         if (!classes[item.category]) {
-          classes[item.category] = {
-            count: 0, invested: 0, value: 0, color: "#6e6e73",
-            eyebrow: "Класс активов", tagline: item.category, chip: item.category,
-            icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/></svg>`
-          };
+          classes[item.category] = { count: 0, invested: 0, prevValue: 0, value: 0, color: "#6e6e73" };
         }
         classes[item.category].count += 1;
         classes[item.category].invested += inv;
+        classes[item.category].prevValue += prevVal;
         classes[item.category].value += val;
       });
 
-      const totalPl = totalValue - totalInvested;
-      const totalPlPct = totalInvested > 0 ? (totalPl / totalInvested) * 100 : 0;
+      const isToday = plPeriod === "today";
+      const baseTotal = isToday ? totalPrevValue : totalInvested;
+      const totalPl = totalValue - baseTotal;
+      const totalPlPct = baseTotal > 0 ? (totalPl / baseTotal) * 100 : 0;
 
       document.getElementById("heroTotalVal").textContent = fmtMoney(totalValue);
-      const plSign = totalPl >= 0 ? "+" : "";
+      const plSign = totalPl > 0 ? "+" : "";
       const plClass = totalPl >= 0 ? "pos" : "neg";
+      const periodLabel = isToday ? "За сегодня" : "За все время";
+      const baseLabel = isToday ? `Вчера ${fmtMoney(totalPrevValue)}` : `Вложено ${fmtMoney(totalInvested)}`;
+
       document.getElementById("heroSubLine").innerHTML =
-        `Вложено ${fmtMoney(totalInvested)} · Результат <span class="${plClass}" style="font-weight:600;">${plSign}${fmtMoney(totalPl)} (${plSign}${fmtDecimal(totalPlPct, 2)}%)</span>`;
+        `${baseLabel} · Результат <span class="${plClass}" style="font-weight:600;">${plSign}${fmtMoney(totalPl)} (${plSign}${fmtDecimal(totalPlPct, 2)}%)</span> <button type="button" class="${plClass}" onclick="togglePlPeriod()" title="Нажмите для переключения: За все время / За сегодня" style="font-family:inherit;font-size:14px;font-weight:500;background:none;border:none;border-bottom:1px dashed currentColor;padding:0 0 1px;margin-left:6px;cursor:pointer;">${periodLabel}</button>`;
 
       renderAppleCompareColumns(classes, totalValue);
       renderPie(classes, totalValue);
@@ -846,26 +842,23 @@
     function renderAppleCompareColumns(classes, totalValue) {
       const grid = document.getElementById("compareGrid");
       const names = Object.keys(classes);
+      const isToday = plPeriod === "today";
 
-      grid.innerHTML = names.map((name, idx) => {
+      grid.innerHTML = names.map(name => {
         const st = classes[name];
         const share = totalValue > 0 ? (st.value / totalValue) * 100 : 0;
-        const pl = st.value - st.invested;
-        const plPct = st.invested > 0 ? (pl / st.invested) * 100 : 0;
+        const baseVal = isToday ? st.prevValue : st.invested;
+        const pl = st.value - baseVal;
+        const plPct = baseVal > 0 ? (pl / baseVal) * 100 : 0;
         const plCls = pl >= 0 ? "pos" : "neg";
-        const plSign = pl >= 0 ? "+" : "";
-        const isFiltered = activeFilter === name;
-
-        const dotsHtml = names.map((_, dIdx) =>
-          `<span class="col-dot ${dIdx === idx ? "active" : ""}"></span>`
-        ).join("");
+        const plSign = pl > 0 ? "+" : "";
 
         return `
           <div class="compare-col">
             <div class="col-name">${name}</div>
             <div class="col-tagline">${fmtMoney(st.value)}</div>
             <div class="col-desc">
-              Вложено ${fmtMoney(st.invested)}
+              ${isToday ? `Вчера ${fmtMoney(st.prevValue)}` : `Вложено ${fmtMoney(st.invested)}`}
             </div>
 
             <div class="spec-divider"></div>
@@ -873,10 +866,9 @@
             <div class="spec-big">${fmtDecimal(share, 1)}%</div>
             <div class="spec-caption">Доля в структуре портфеля</div>
 
-
             <div style="margin-top: 22px;">
               <div class="spec-big ${plCls}">${plSign}${fmtMoney(pl)}</div>
-              <div class="spec-caption ${plCls}">${plSign}${fmtDecimal(plPct, 2)}% к вложениям</div>
+              <div class="spec-caption ${plCls}">${plSign}${fmtDecimal(plPct, 2)}% ${isToday ? "за сегодня" : "к вложениям"}</div>
             </div>
           </div>
         `;
@@ -945,13 +937,17 @@
     function renderTable(totalPortfolioVal) {
       const q = document.getElementById("searchInput").value.trim().toLowerCase();
 
+      const isToday = plPeriod === "today";
       let rows = holdings.map((item, idx) => {
         const invested = (item.investedExact !== undefined) ? item.investedExact : (item.qty * item.avgPrice);
+        const effectivePrev = (item.prevPrice !== undefined && item.prevPrice > 0) ? item.prevPrice : item.currPrice;
+        const prevValue = item.qty * effectivePrev;
         const value = item.qty * item.currPrice;
-        const plRub = value - invested;
-        const plPct = invested > 0 ? (plRub / invested) * 100 : 0;
+        const baseVal = isToday ? prevValue : invested;
+        const plRub = value - baseVal;
+        const plPct = baseVal > 0 ? (plRub / baseVal) * 100 : 0;
         const share = totalPortfolioVal > 0 ? (value / totalPortfolioVal) * 100 : 0;
-        return { ...item, idx, invested, value, plRub, plPct, share };
+        return { ...item, idx, invested, prevValue, value, plRub, plPct, share };
       });
 
       if (activeFilter !== "all") {
@@ -991,8 +987,8 @@
             <td class="num"><strong>${fmtDecimal(r.currPrice, 2)} ₽</strong></td>
             <td class="num">${fmtMoney(r.invested)}</td>
             <td class="num"><strong>${fmtMoney(r.value)}</strong></td>
-            <td class="num ${plCls}">${r.plRub >= 0 ? "+" : ""}${fmtMoney(r.plRub)}</td>
-            <td class="num ${plCls}">${r.plPct >= 0 ? "+" : ""}${fmtDecimal(r.plPct, 2)}%</td>
+            <td class="num ${plCls}">${r.plRub > 0 ? "+" : ""}${fmtMoney(r.plRub)}</td>
+            <td class="num ${plCls}">${r.plPct > 0 ? "+" : ""}${fmtDecimal(r.plPct, 2)}%</td>
             <td class="num">${fmtDecimal(r.share, 1)}%</td>
             <td class="num">
               <div class="row-btns">
@@ -1005,9 +1001,11 @@
       }).join("");
 
       const subInv = rows.reduce((s, r) => s + r.invested, 0);
+      const subPrev = rows.reduce((s, r) => s + r.prevValue, 0);
       const subVal = rows.reduce((s, r) => s + r.value, 0);
-      const subPl = subVal - subInv;
-      const subPlPct = subInv > 0 ? (subPl / subInv) * 100 : 0;
+      const subBase = isToday ? subPrev : subInv;
+      const subPl = subVal - subBase;
+      const subPlPct = subBase > 0 ? (subPl / subBase) * 100 : 0;
       const subShare = totalPortfolioVal > 0 ? (subVal / totalPortfolioVal) * 100 : 0;
 
       document.getElementById("holdingsFoot").innerHTML = `
@@ -1015,8 +1013,8 @@
           <td colspan="5">Итого (${rows.length} поз.)</td>
           <td class="num">${fmtMoney(subInv)}</td>
           <td class="num">${fmtMoney(subVal)}</td>
-          <td class="num ${subPl >= 0 ? "pos" : "neg"}">${subPl >= 0 ? "+" : ""}${fmtMoney(subPl)}</td>
-          <td class="num ${subPl >= 0 ? "pos" : "neg"}">${subPlPct >= 0 ? "+" : ""}${fmtDecimal(subPlPct, 2)}%</td>
+          <td class="num ${subPl >= 0 ? "pos" : "neg"}">${subPl > 0 ? "+" : ""}${fmtMoney(subPl)}</td>
+          <td class="num ${subPl >= 0 ? "pos" : "neg"}">${subPlPct > 0 ? "+" : ""}${fmtDecimal(subPlPct, 2)}%</td>
           <td class="num">${fmtDecimal(subShare, 1)}%</td>
           <td></td>
         </tr>
@@ -1207,13 +1205,18 @@
 
       (json.securities.data || []).forEach(r => {
         const id = r[sId];
-        const rawP = mdMap[id] ?? (r[sPrev] !== null ? Number(r[sPrev]) : null);
-        if (id && rawP && rawP > 0) {
+        const prevRaw = (sPrev >= 0 && r[sPrev] !== null && Number(r[sPrev]) > 0) ? Number(r[sPrev]) : null;
+        const currRaw = mdMap[id] ?? prevRaw;
+        if (id && currRaw && currRaw > 0) {
+          const prevFinalRaw = prevRaw ?? currRaw;
           if (board === "TQBR") {
-            map[id] = rawP;
+            map[id] = { curr: currRaw, prev: prevFinalRaw };
           } else {
             const fv = Number(r[sFace]) || 1000;
-            map[id] = (rawP / 100) * fv;
+            map[id] = {
+              curr: (currRaw / 100) * fv,
+              prev: (prevFinalRaw / 100) * fv
+            };
           }
         }
       });
@@ -1233,6 +1236,7 @@
           const cbr = await cbrRes.json();
           if (cbr?.Valute?.USD?.Value) {
             rates.usdRub = cbr.Valute.USD.Value;
+            rates.prevUsdRub = cbr.Valute.USD.Previous || cbr.Valute.USD.Value;
           }
         }
 
@@ -1272,8 +1276,10 @@
             const gLast = mdRow[gMdCols.indexOf("LAST")] || mdRow[gMdCols.indexOf("LCURRENTPRICE")] || mdRow[gMdCols.indexOf("MARKETPRICE")];
             const gPrev = secRow[gSecCols.indexOf("PREVPRICE")];
             const gramPriceMoex = gLast || gPrev;
+            const prevGramPriceMoex = (gPrev && gPrev > 1000) ? gPrev : gramPriceMoex;
             if (gramPriceMoex && gramPriceMoex > 1000) {
               rates.goldGramRubDirect = gramPriceMoex;
+              rates.prevGoldGramRubDirect = prevGramPriceMoex;
               rates.xauUsd = (gramPriceMoex * 31.1034768) / rates.usdRub;
               gotLiveGold = true;
             }
@@ -1298,7 +1304,8 @@
         let updated = 0;
         holdings.forEach(item => {
           if (item.ticker && prices[item.ticker]) {
-            item.currPrice = Number(prices[item.ticker].toFixed(2));
+            item.currPrice = Number(prices[item.ticker].curr.toFixed(2));
+            item.prevPrice = Number(prices[item.ticker].prev.toFixed(2));
             updated++;
           }
         });
