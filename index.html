@@ -552,7 +552,7 @@
             <th onclick="sortBy('category')">Класс</th>
             <th class="num" onclick="sortBy('qty')">Кол-во</th>
             <th class="num" onclick="sortBy('avgPrice')">Цена покупки</th>
-            <th class="num" onclick="sortBy('currPrice')">Текущая цена</th>
+            <th class="num" onclick="sortBy('currPrice')">Цена продажи / тек.</th>
             <th class="num" onclick="sortBy('invested')">Вложено, ₽</th>
             <th class="num" onclick="sortBy('value')">Стоимость, ₽</th>
             <th class="num" onclick="sortBy('plRub')">Прибыль / Убыток</th>
@@ -593,27 +593,27 @@
       </div>
       <div class="field-grid">
         <div class="field">
-          <label>Тикер / ISIN</label>
-          <input type="text" id="fTicker" placeholder="SBERP или RU000..." />
+          <label id="lblTicker">Тикер / ISIN (для монет не нужен)</label>
+          <input type="text" id="fTicker" placeholder="Необязательно для монет" />
         </div>
         <div class="field">
-          <label>Наименование</label>
-          <input type="text" id="fName" placeholder="Сбербанк (ап)" />
+          <label>Наименование *</label>
+          <input type="text" id="fName" placeholder="Например: 5 рублей Николай II" />
         </div>
       </div>
       <div class="field-grid">
         <div class="field">
-          <label>Количество (шт.)</label>
+          <label>Количество (шт.) *</label>
           <input type="number" id="fQty" step="1" />
         </div>
         <div class="field">
-          <label>Средняя цена покупки (₽)</label>
+          <label>Цена покупки (₽ за 1 шт.) *</label>
           <input type="number" id="fAvgPrice" step="0.01" />
         </div>
       </div>
       <div class="field">
-        <label>Текущая рыночная цена (₽ за 1 шт.)</label>
-        <input type="number" id="fCurrPrice" step="0.01" />
+        <label>Текущая цена / цена продажи (₽ за 1 шт.)</label>
+        <input type="number" id="fCurrPrice" step="0.01" placeholder="Если пусто — равна цене покупки" />
       </div>
       <div class="modal-footer">
         <button onclick="closeModal()">Отмена</button>
@@ -830,7 +830,7 @@
           <tr>
             <td>
               <strong>${r.name}</strong>
-              <span class="ticker-sub">${r.ticker} · ${r.board}</span>
+              <span class="ticker-sub">${r.ticker ? r.ticker + " · " + r.board : r.board}</span>
             </td>
             <td><span class="class-tag" style="border-left: 3px solid ${clsColor};">${r.category}</span></td>
             <td class="num">${fmtDecimal(r.qty, 0)}</td>
@@ -928,16 +928,28 @@
       const idx = parseInt(document.getElementById("editIndex").value, 10);
       const category = document.getElementById("fCategory").value;
       const board = document.getElementById("fBoard").value;
-      const ticker = document.getElementById("fTicker").value.trim().toUpperCase();
-      const name = document.getElementById("fName").value.trim() || ticker;
+      const rawTicker = document.getElementById("fTicker").value.trim().toUpperCase();
+      const rawName = document.getElementById("fName").value.trim();
       const qty = parseFloat(document.getElementById("fQty").value);
       const avgPrice = parseFloat(document.getElementById("fAvgPrice").value);
-      const currPrice = parseFloat(document.getElementById("fCurrPrice").value) || avgPrice;
+      const parsedCurr = parseFloat(document.getElementById("fCurrPrice").value);
+      const currPrice = (!isNaN(parsedCurr) && parsedCurr > 0) ? parsedCurr : avgPrice;
 
-      if (!ticker || isNaN(qty) || qty <= 0 || isNaN(avgPrice) || avgPrice <= 0) {
-        alert("Заполните тикер, количество и цену покупки.");
+      if (category !== "Золото" && !rawTicker && !rawName) {
+        alert("Укажите тикер или наименование бумаги, количество и цену покупки.");
         return;
       }
+      if (category === "Золото" && !rawName && !rawTicker) {
+        alert("Укажите наименование монеты, количество и цену покупки.");
+        return;
+      }
+      if (isNaN(qty) || qty <= 0 || isNaN(avgPrice) || avgPrice <= 0) {
+        alert("Заполните корректное количество и цену покупки.");
+        return;
+      }
+
+      const ticker = rawTicker;
+      const name = rawName || rawTicker;
 
       const record = {
         ticker,
@@ -951,7 +963,7 @@
       };
 
       if (idx >= 0) {
-        // Если пользователь вручную изменил текущую цену монеты — фиксируем её без автопересчёта по унции
+        // Сохраняем привязку к биржевому весу золота только если это монета с pureGrams и цену не меняли вручную
         if (holdings[idx].pureGrams && Math.abs(currPrice - holdings[idx].currPrice) < 1) {
           record.pureGrams = holdings[idx].pureGrams;
           record.premium = holdings[idx].premium;
@@ -1086,7 +1098,7 @@
         }
 
         // 3. Точечная дозагрузка тикеров, если пакетный запрос не вернул бумагу
-        const missingItems = holdings.filter(h => h.category !== "Золото" && !prices[h.ticker]);
+        const missingItems = holdings.filter(h => h.category !== "Золото" && h.ticker && !prices[h.ticker]);
         for (const item of missingItems) {
           const market = item.board === "TQBR" ? "shares" : "bonds";
           const singleJson = await fetchSingleMoexTicker(market, item.board, item.ticker);
@@ -1138,7 +1150,7 @@
 
         let updated = 0;
         holdings.forEach(item => {
-          if (prices[item.ticker]) {
+          if (item.ticker && prices[item.ticker]) {
             item.currPrice = Number(prices[item.ticker].toFixed(2));
             updated++;
           }
@@ -1148,7 +1160,7 @@
         renderAll();
         const t = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
         status.textContent = updated > 0
-          ? `Обновлено в ${t} (MOEX: ${updated} из ${holdings.filter(h => h.category !== "Золото").length})`
+          ? `Обновлено в ${t} (MOEX: ${updated} из ${holdings.filter(h => h.category !== "Золото" && h.ticker).length})`
           : `MOEX недоступен из браузера в ${t} (показаны сохранённые цены)`;
       } catch (e) {
         status.textContent = "Ошибка сети MOEX (используются сохранённые цены)";
