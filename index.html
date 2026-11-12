@@ -625,42 +625,37 @@
   <script>
     // Точный состав портфеля из таблицы Google Sheets (10 облигаций, 17 акций, 2 вида золотых монет)
     const DEFAULT_HOLDINGS = [
-      // Облигации
-      { ticker: "SU26247RMFS5", name: "ОФЗ 26247", category: "Облигации", board: "TQOB", qty: 400, avgPrice: 796.90, currPrice: 805.20, faceValue: 1000 },
-      { ticker: "SU26248RMFS3", name: "ОФЗ 26248", category: "Облигации", board: "TQOB", qty: 400, avgPrice: 795.00, currPrice: 803.50, faceValue: 1000 },
-      { ticker: "RU000A10C8F3", name: "Брусника 002P-04", category: "Облигации", board: "TQCB", qty: 409, avgPrice: 978.00, currPrice: 984.50, faceValue: 1000 },
-      { ticker: "RU000A10DA74", name: "Эталон-Финанс 002P-04", category: "Облигации", board: "TQCB", qty: 335, avgPrice: 982.00, currPrice: 989.00, faceValue: 1000 },
-      { ticker: "RU000A10EST2", name: "Эталон-Финанс 002P-05", category: "Облигации", board: "TQCB", qty: 400, avgPrice: 985.00, currPrice: 991.20, faceValue: 1000 },
-      { ticker: "RU000A10CM06", name: "АПРИ БО-002Р-11", category: "Облигации", board: "TQCB", qty: 100, avgPrice: 990.00, currPrice: 996.00, faceValue: 1000 },
-      { ticker: "RU000A10ERC0", name: "АПРИ БО-002Р-14", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 992.00, currPrice: 998.50, faceValue: 1000 },
-      { ticker: "RU000A10CZC7", name: "Аэрофьюэлз 002Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 981.50, currPrice: 988.00, faceValue: 1000 },
-      { ticker: "RU000A10FX18", name: "Фабрика ПО 001Р-01", category: "Облигации", board: "TQCB", qty: 100, avgPrice: 981.00, currPrice: 986.40, faceValue: 1000 },
-      { ticker: "RU000A10D3S6", name: "Селигдар 001Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 987.80, currPrice: 992.10, faceValue: 1000 },
-
-      // Акции
-      { ticker: "SBERP", name: "Сбербанк (ап)", category: "Акции", board: "TQBR", qty: 1100, avgPrice: 278.50, currPrice: 304.20 },
-      { ticker: "X5", name: "Корп. центр ИКС 5", category: "Акции", board: "TQBR", qty: 183, avgPrice: 2810.00, currPrice: 3120.00 },
-      { ticker: "TRNFP", name: "Транснефть (ап)", category: "Акции", board: "TQBR", qty: 200, avgPrice: 1290.00, currPrice: 1365.00 },
-      { ticker: "LKOH", name: "НК ЛУКОЙЛ", category: "Акции", board: "TQBR", qty: 40, avgPrice: 6850.00, currPrice: 7190.00 },
-      { ticker: "NVTK", name: "НОВАТЭК", category: "Акции", board: "TQBR", qty: 300, avgPrice: 1040.00, currPrice: 1125.00 },
-      { ticker: "MGNT", name: "Магнит", category: "Акции", board: "TQBR", qty: 60, avgPrice: 4950.00, currPrice: 5180.00 },
-      { ticker: "BELU", name: "НоваБев Групп", category: "Акции", board: "TQBR", qty: 450, avgPrice: 540.00, currPrice: 572.00 },
-      { ticker: "NMTP", name: "НМТП", category: "Акции", board: "TQBR", qty: 20000, avgPrice: 9.20, currPrice: 9.85 },
-      { ticker: "PLZL", name: "Полюс", category: "Акции", board: "TQBR", qty: 60, avgPrice: 1480.00, currPrice: 1640.00 },
-      { ticker: "NLMK", name: "НЛМК", category: "Акции", board: "TQBR", qty: 600, avgPrice: 142.00, currPrice: 154.50 },
-      { ticker: "GMKN", name: "ГМК Норильский никель", category: "Акции", board: "TQBR", qty: 860, avgPrice: 118.00, currPrice: 126.40 },
-      { ticker: "CHMF", name: "Северсталь", category: "Акции", board: "TQBR", qty: 120, avgPrice: 1260.00, currPrice: 1340.00 },
-      { ticker: "T", name: "Т-Технологии МКПАО ао", category: "Акции", board: "TQBR", qty: 400, avgPrice: 319.21, currPrice: 345.00 },
-      { ticker: "MOEX", name: "Московская Биржа", category: "Акции", board: "TQBR", qty: 500, avgPrice: 198.00, currPrice: 214.50 },
-      { ticker: "YDEX", name: "МКПАО Яндекс", category: "Акции", board: "TQBR", qty: 50, avgPrice: 3920.00, currPrice: 4250.00 },
-      { ticker: "OZON", name: "МКПАО Озон", category: "Акции", board: "TQBR", qty: 30, avgPrice: 3450.00, currPrice: 3890.00 },
-      { ticker: "OZPH", name: "Озон Фармацевтика", category: "Акции", board: "TQBR", qty: 4000, avgPrice: 44.50, currPrice: 51.20 },
-
-      // Золото (монеты)
-      { ticker: "XAUUSD", name: "ГПЗ 7.78 (2025-2018)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 95475.25, currPrice: 82658.17, pureGrams: 7.78, premium: 1.00 }
+      { ticker: "SU26247RMFS5", name: "ОФЗ 26247", category: "Облигации", board: "TQOB", qty: 400, avgPrice: 885.35, investedExact: 354141.00, currPrice: 805.20, faceValue: 1000 },
+      { ticker: "SU26248RMFS3", name: "ОФЗ 26248", category: "Облигации", board: "TQOB", qty: 400, avgPrice: 884.50, investedExact: 353798.00, currPrice: 803.50, faceValue: 1000 },
+      { ticker: "RU000A10C8F3", name: "Брусника 002P-04", category: "Облигации", board: "TQCB", qty: 409, avgPrice: 992.54, investedExact: 405947.62, currPrice: 984.50, faceValue: 1000 },
+      { ticker: "RU000A10DA74", name: "Эталон-Финанс 002P-04", category: "Облигации", board: "TQCB", qty: 335, avgPrice: 1007.27, investedExact: 337433.97, currPrice: 989.00, faceValue: 1000 },
+      { ticker: "RU000A10CM06", name: "АПРИ БО-002Р-11", category: "Облигации", board: "TQCB", qty: 100, avgPrice: 1015.74, investedExact: 101574.00, currPrice: 996.00, faceValue: 1000 },
+      { ticker: "RU000A10EST2", name: "Эталон-Финанс 002P-05", category: "Облигации", board: "TQCB", qty: 400, avgPrice: 1004.70, investedExact: 401878.21, currPrice: 991.20, faceValue: 1000 },
+      { ticker: "RU000A10ERC0", name: "АПРИ БО-002Р-14", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 1000.99, investedExact: 200197.57, currPrice: 998.50, faceValue: 1000 },
+      { ticker: "RU000A10CZC7", name: "Аэрофьюэлз 002Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 1025.40, investedExact: 205080.00, currPrice: 988.00, faceValue: 1000 },
+      { ticker: "RU000A10FX18", name: "Фабрика ПО 001Р-01", category: "Облигации", board: "TQCB", qty: 100, avgPrice: 989.40, investedExact: 98940.00, currPrice: 986.40, faceValue: 1000 },
+      { ticker: "RU000A10D3S6", name: "Селигдар 001Р-06", category: "Облигации", board: "TQCB", qty: 200, avgPrice: 989.52, investedExact: 197903.00, currPrice: 992.10, faceValue: 1000 },
+      { ticker: "XAUUSD", name: "ГПЗ 7.78 (2025-2018)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 95475.25, investedExact: 381901.00, currPrice: 82658.17, pureGrams: 7.78, premium: 1.00 },
+      { ticker: "TRNFP", name: "Транснефть (ап)", category: "Акции", board: "TQBR", qty: 200, avgPrice: 1251.50, investedExact: 250300.00, currPrice: 1365.00 },
+      { ticker: "LKOH", name: "НК ЛУКОЙЛ", category: "Акции", board: "TQBR", qty: 40, avgPrice: 5380.66, investedExact: 215226.50, currPrice: 7190.00 },
+      { ticker: "NVTK", name: "НОВАТЭК", category: "Акции", board: "TQBR", qty: 300, avgPrice: 1002.41, investedExact: 300724.30, currPrice: 1125.00 },
+      { ticker: "MGNT", name: "Магнит", category: "Акции", board: "TQBR", qty: 60, avgPrice: 3478.45, investedExact: 208707.00, currPrice: 5180.00 },
+      { ticker: "X5", name: "Корп. центр ИКС 5", category: "Акции", board: "TQBR", qty: 183, avgPrice: 2727.19, investedExact: 499076.10, currPrice: 3120.00 },
+      { ticker: "BELU", name: "НоваБев Групп", category: "Акции", board: "TQBR", qty: 450, avgPrice: 431.54, investedExact: 194191.60, currPrice: 572.00 },
+      { ticker: "NMTP", name: "НМТП", category: "Акции", board: "TQBR", qty: 20000, avgPrice: 8.81, investedExact: 176200.00, currPrice: 9.85 },
+      { ticker: "PLZL", name: "Полюс", category: "Акции", board: "TQBR", qty: 60, avgPrice: 2302.00, investedExact: 138120.00, currPrice: 1640.00 },
+      { ticker: "NLMK", name: "НЛМК", category: "Акции", board: "TQBR", qty: 600, avgPrice: 118.13, investedExact: 70880.00, currPrice: 154.50 },
+      { ticker: "GMKN", name: "ГМК Норильский никель", category: "Акции", board: "TQBR", qty: 860, avgPrice: 122.84, investedExact: 105645.00, currPrice: 126.40 },
+      { ticker: "CHMF", name: "Северсталь", category: "Акции", board: "TQBR", qty: 120, avgPrice: 992.82, investedExact: 119138.80, currPrice: 1340.00 },
+      { ticker: "SBERP", name: "Сбербанк (ап)", category: "Акции", board: "TQBR", qty: 1100, avgPrice: 295.41, investedExact: 324948.89, currPrice: 304.20 },
+      { ticker: "T", name: "Т-Технологии МКПАО ао", category: "Акции", board: "TQBR", qty: 400, avgPrice: 319.21, investedExact: 127682.00, currPrice: 345.00 },
+      { ticker: "MOEX", name: "Московская Биржа", category: "Акции", board: "TQBR", qty: 500, avgPrice: 170.69, investedExact: 85345.00, currPrice: 214.50 },
+      { ticker: "YDEX", name: "МКПАО Яндекс", category: "Акции", board: "TQBR", qty: 50, avgPrice: 4385.20, investedExact: 219260.00, currPrice: 4250.00 },
+      { ticker: "OZON", name: "МКПАО Озон", category: "Акции", board: "TQBR", qty: 30, avgPrice: 4534.83, investedExact: 136045.00, currPrice: 3890.00 },
+      { ticker: "OZPH", name: "Озон Фармацевтика", category: "Акции", board: "TQBR", qty: 4000, avgPrice: 48.91, investedExact: 195630.00, currPrice: 51.20 }
     ];
 
-    const STORAGE_KEY = "gsheets_portfolio_v8";
+    const STORAGE_KEY = "gsheets_portfolio_v9";
     let holdings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_HOLDINGS);
     let activeFilter = "all";
     let sortCol = "value";
@@ -697,7 +692,7 @@
         if (item.category === "Золото" && item.pureGrams) {
           item.currPrice = Math.round(gramRub * item.pureGrams * (item.premium || 1.08));
         }
-        const inv = item.qty * item.avgPrice;
+        const inv = (item.investedExact !== undefined) ? item.investedExact : (item.qty * item.avgPrice);
         const val = item.qty * item.currPrice;
         totalInvested += inv;
         totalValue += val;
@@ -802,7 +797,7 @@
       const q = document.getElementById("searchInput").value.trim().toLowerCase();
 
       let rows = holdings.map((item, idx) => {
-        const invested = item.qty * item.avgPrice;
+        const invested = (item.investedExact !== undefined) ? item.investedExact : (item.qty * item.avgPrice);
         const value = item.qty * item.currPrice;
         const plRub = value - invested;
         const plPct = invested > 0 ? (plRub / invested) * 100 : 0;
