@@ -1075,13 +1075,13 @@
     }
 
     function exportCSV() {
-      const header = "ticker,name,category,board,qty,avg_price,curr_price
-";
+      const NL = String.fromCharCode(10);
+      const BOM = String.fromCharCode(0xFEFF);
+      const header = "ticker,name,category,board,qty,avg_price,curr_price" + NL;
       const lines = holdings.map(h =>
         `${h.ticker},"${h.name}",${h.category},${h.board},${h.qty},${h.avgPrice.toFixed(2)},${h.currPrice.toFixed(2)}`
-      ).join("
-");
-      const blob = new Blob(["﻿" + header + lines], { type: "text/csv;charset=utf-8;" });
+      ).join(NL);
+      const blob = new Blob([BOM + header + lines], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -1090,13 +1090,18 @@
       URL.revokeObjectURL(url);
     }
 
+    function parseCSVLines(text) {
+      const NL = String.fromCharCode(10);
+      const CR = String.fromCharCode(13);
+      return text.split(NL).map(l => l.replace(CR, "").trim()).filter(Boolean);
+    }
+
     function importCSV(e) {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(ev) {
-        const lines = ev.target.result.split(/?
-/).filter(l => l.trim());
+        const lines = parseCSVLines(ev.target.result);
         if (lines.length < 2) return;
         const parsed = [];
         for (let i = 1; i < lines.length; i++) {
@@ -1128,8 +1133,7 @@
         const res = await fetch("portfolio.csv?t=" + Date.now());
         if (res.ok && !localStorage.getItem(STORAGE_KEY)) {
           const text = await res.text();
-          const lines = text.split(/?
-/).filter(l => l.trim());
+          const lines = parseCSVLines(text);
           if (lines.length >= 2) {
             const parsed = [];
             for (let i = 1; i < lines.length; i++) {
