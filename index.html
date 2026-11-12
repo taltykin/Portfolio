@@ -497,7 +497,7 @@
         <span>Курс USD/RUB (ЦБ): <strong id="usdRubText">82.66 ₽</strong></span>
         <span>Золото XAU/USD: <strong id="xauUsdText">$3,997.80</strong></span>
         <span>1 г золота (999): <strong id="goldGramText">10 624 ₽</strong></span>
-        <span>Всего позиций: <strong id="positionsCountText">29</strong></span>
+        <span>Всего позиций: <strong id="positionsCountText">28</strong></span>
       </div>
       <div id="syncStatus">Локальные данные</div>
     </div>
@@ -672,11 +672,10 @@
       { ticker: "OZPH", name: "Озон Фармацевтика", category: "Акции", board: "TQBR", qty: 4000, avgPrice: 44.50, currPrice: 51.20 },
 
       // Золото (монеты)
-      { ticker: "XAUUSD", name: "ГПЗ 7.78 (2025-2018)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 95475.25, currPrice: 82658.17, pureGrams: 7.78, premium: 1.00 },
-      { ticker: "COIN-N2-10", name: "Николай II 10 руб. (7.74 г Au)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 64000.00, currPrice: 82233.19, pureGrams: 7.74, premium: 1.00 }
+      { ticker: "XAUUSD", name: "ГПЗ 7.78 (2025-2018)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 95475.25, currPrice: 82658.17, pureGrams: 7.78, premium: 1.00 }
     ];
 
-    const STORAGE_KEY = "gsheets_portfolio_v6";
+    const STORAGE_KEY = "gsheets_portfolio_v7";
     let holdings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_HOLDINGS);
     let activeFilter = "all";
     let sortCol = "value";
