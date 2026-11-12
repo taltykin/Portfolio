@@ -307,17 +307,17 @@
     table.holdings {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 12.5px;
     }
 
     table.holdings thead th {
       background: var(--bg-head);
       color: var(--ink-sec);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
-      padding: 10px 12px;
+      letter-spacing: 0.02em;
+      padding: 9px 8px;
       border-bottom: 1px solid var(--border-dark);
       text-align: left;
       white-space: nowrap;
@@ -331,10 +331,16 @@
     }
 
     table.holdings tbody td {
-      padding: 10px 12px;
+      padding: 9px 8px;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    table.holdings tbody td:first-child {
+      white-space: normal;
+      min-width: 165px;
     }
 
     table.holdings tbody tr:hover {
@@ -342,11 +348,12 @@
     }
 
     table.holdings tfoot td {
-      padding: 11px 12px;
+      padding: 10px 8px;
       background: var(--bg-head);
       font-weight: 700;
       border-top: 1px solid var(--border-dark);
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
 
     .num {
@@ -548,17 +555,17 @@
       <table class="holdings">
         <thead>
           <tr>
-            <th onclick="sortBy('name')">Наименование / Тикер</th>
+            <th onclick="sortBy('name')">Актив</th>
             <th onclick="sortBy('category')">Класс</th>
             <th class="num" onclick="sortBy('qty')">Кол-во</th>
-            <th class="num" onclick="sortBy('avgPrice')">Цена покупки</th>
-            <th class="num" onclick="sortBy('currPrice')">Цена продажи / тек.</th>
-            <th class="num" onclick="sortBy('invested')">Вложено, ₽</th>
-            <th class="num" onclick="sortBy('value')">Стоимость, ₽</th>
-            <th class="num" onclick="sortBy('plRub')">Прибыль / Убыток</th>
-            <th class="num" onclick="sortBy('plPct')">%</th>
-            <th class="num" onclick="sortBy('share')">Доля, %</th>
-            <th class="num">Управление</th>
+            <th class="num" onclick="sortBy('avgPrice')">Покупка</th>
+            <th class="num" onclick="sortBy('currPrice')">Цена</th>
+            <th class="num" onclick="sortBy('invested')">Вложено</th>
+            <th class="num" onclick="sortBy('value')">Оценка</th>
+            <th class="num" onclick="sortBy('plRub')">P/L, ₽</th>
+            <th class="num" onclick="sortBy('plPct')">P/L, %</th>
+            <th class="num" onclick="sortBy('share')">Доля</th>
+            <th class="num"></th>
           </tr>
         </thead>
         <tbody id="holdingsBody"></tbody>
