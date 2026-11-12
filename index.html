@@ -494,9 +494,9 @@
     <!-- Market Strip -->
     <div class="rates-strip">
       <div class="rates-list">
-        <span>Курс USD/RUB (ЦБ): <strong id="usdRubText">97.50 ₽</strong></span>
-        <span>Золото XAU/USD: <strong id="xauUsdText">$2,740.00</strong></span>
-        <span>1 г золота (999): <strong id="goldGramText">8 589 ₽</strong></span>
+        <span>Курс USD/RUB (ЦБ): <strong id="usdRubText">82.66 ₽</strong></span>
+        <span>Золото XAU/USD: <strong id="xauUsdText">$3,997.80</strong></span>
+        <span>1 г золота (999): <strong id="goldGramText">10 624 ₽</strong></span>
         <span>Всего позиций: <strong id="positionsCountText">29</strong></span>
       </div>
       <div id="syncStatus">Локальные данные</div>
@@ -672,17 +672,17 @@
       { ticker: "OZPH", name: "Озон Фармацевтика", category: "Акции", board: "TQBR", qty: 4000, avgPrice: 44.50, currPrice: 51.20 },
 
       // Золото (монеты)
-      { ticker: "COIN-GP", name: "Георгий Победоносец (7.78 г Au)", category: "Золото", board: "GOLD", qty: 12, avgPrice: 61500.00, currPrice: 71800.00, pureGrams: 7.78, premium: 1.075 },
-      { ticker: "COIN-N2-10", name: "Николай II 10 руб. (7.74 г Au)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 64000.00, currPrice: 75200.00, pureGrams: 7.74, premium: 1.13 }
+      { ticker: "XAUUSD", name: "ГПЗ 7.78 (2025-2018)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 95475.25, currPrice: 82658.17, pureGrams: 7.78, premium: 1.00 },
+      { ticker: "COIN-N2-10", name: "Николай II 10 руб. (7.74 г Au)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 64000.00, currPrice: 82233.19, pureGrams: 7.74, premium: 1.00 }
     ];
 
-    const STORAGE_KEY = "gsheets_portfolio_v2";
+    const STORAGE_KEY = "gsheets_portfolio_v5";
     let holdings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_HOLDINGS);
     let activeFilter = "all";
     let sortCol = "value";
     let sortAsc = false;
     let chartInstance = null;
-    let rates = { usdRub: 97.50, xauUsd: 2740.00 };
+    let rates = { usdRub: 82.66, xauUsd: 3997.80 };
 
     function fmtMoney(v) {
       return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(v) + " ₽";
@@ -697,7 +697,7 @@
     }
 
     function renderAll() {
-      const gramRub = (rates.xauUsd / 31.1034768) * rates.usdRub;
+      const gramRub = rates.goldGramRubDirect || ((rates.xauUsd / 31.1034768) * rates.usdRub);
       document.getElementById("usdRubText").textContent = `${fmtDecimal(rates.usdRub, 2)} ₽`;
       document.getElementById("xauUsdText").textContent = `$${fmtDecimal(rates.xauUsd, 2)}`;
       document.getElementById("goldGramText").textContent = fmtMoney(gramRub);
@@ -975,8 +975,8 @@
       };
 
       if (idx >= 0) {
-        // Сохраняем параметры монеты при редактировании золота
-        if (holdings[idx].pureGrams) {
+        // Если пользователь вручную изменил текущую цену монеты — фиксируем её без автопересчёта по унции
+        if (holdings[idx].pureGrams && Math.abs(currPrice - holdings[idx].currPrice) < 1) {
           record.pureGrams = holdings[idx].pureGrams;
           record.premium = holdings[idx].premium;
         }
@@ -1052,6 +1052,42 @@
               prices[id] = board === "TQBR" ? p : (p / 100) * (r[sFace] || 1000);
             }
           });
+        }
+
+        // Запрос актуальной цены золота: сначала MOEX (GLDRUB_TOM), резерв — спот XAU/USD * курс ЦБ
+        let gotLiveGold = false;
+        try {
+          const gldRes = await fetch("https://iss.moex.com/iss/engines/currency/markets/selt/boards/CETS/securities/GLDRUB_TOM.json?iss.meta=off&iss.only=securities,marketdata");
+          if (gldRes.ok) {
+            const gldJson = await gldRes.json();
+            const gSecCols = gldJson.securities.columns;
+            const gMdCols = gldJson.marketdata.columns;
+            const mdRow = gldJson.marketdata.data?.[0] || [];
+            const secRow = gldJson.securities.data?.[0] || [];
+            const gLast = mdRow[gMdCols.indexOf("LAST")] || mdRow[gMdCols.indexOf("LCURRENTPRICE")] || mdRow[gMdCols.indexOf("MARKETPRICE")];
+            const gPrev = secRow[gSecCols.indexOf("PREVPRICE")];
+            const gramPriceMoex = gLast || gPrev;
+            if (gramPriceMoex && gramPriceMoex > 1000) {
+              rates.goldGramRubDirect = gramPriceMoex;
+              rates.xauUsd = (gramPriceMoex * 31.1034768) / rates.usdRub;
+              gotLiveGold = true;
+            }
+          }
+        } catch (err) {}
+
+        if (!gotLiveGold) {
+          try {
+            const spotRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd");
+            if (spotRes.ok) {
+              const spotJson = await spotRes.json();
+              const ozUsd = spotJson?.["pax-gold"]?.usd;
+              if (ozUsd && ozUsd > 1000) {
+                rates.xauUsd = ozUsd;
+                rates.goldGramRubDirect = (ozUsd / 31.1034768) * rates.usdRub;
+                gotLiveGold = true;
+              }
+            }
+          } catch (err2) {}
         }
 
         let updated = 0;
