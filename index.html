@@ -477,30 +477,15 @@
     <div class="top-bar">
       <div class="title-block">
         <h1>Портфель активов</h1>
-        <div class="meta">Учёт позиций, рыночная оценка MOEX и распределение по классам активов</div>
+        <div class="meta">Учёт позиций, рыночная оценка MOEX и распределение по классам активов · <span id="syncStatus">Локальные данные</span></div>
       </div>
       <div class="toolbar">
         <button class="primary" id="btnRefresh" onclick="refreshMarketData()">Обновить котировки MOEX</button>
         <button onclick="openModal()">+ Добавить позицию</button>
-        <button onclick="exportCSV()">Экспорт CSV</button>
-        <label class="file-btn">
-          Импорт CSV
-          <input type="file" id="csvInput" accept=".csv" style="display:none" onchange="importCSV(event)" />
-        </label>
-        <button onclick="resetPortfolio()">Сбросить к исходным</button>
       </div>
     </div>
 
-    <!-- Market Strip -->
-    <div class="rates-strip">
-      <div class="rates-list">
-        <span>Курс USD/RUB (ЦБ): <strong id="usdRubText">82.66 ₽</strong></span>
-        <span>Золото XAU/USD: <strong id="xauUsdText">$3,997.80</strong></span>
-        <span>1 г золота (999): <strong id="goldGramText">10 624 ₽</strong></span>
-        <span>Всего позиций: <strong id="positionsCountText">28</strong></span>
-      </div>
-      <div id="syncStatus">Локальные данные</div>
-    </div>
+
 
     <!-- Overview & Class Distribution -->
     <div class="overview-grid">
@@ -697,10 +682,7 @@
 
     function renderAll() {
       const gramRub = rates.goldGramRubDirect || ((rates.xauUsd / 31.1034768) * rates.usdRub);
-      document.getElementById("usdRubText").textContent = `${fmtDecimal(rates.usdRub, 2)} ₽`;
-      document.getElementById("xauUsdText").textContent = `$${fmtDecimal(rates.xauUsd, 2)}`;
-      document.getElementById("goldGramText").textContent = fmtMoney(gramRub);
-      document.getElementById("positionsCountText").textContent = holdings.length;
+
 
       let totalValue = 0;
       let totalInvested = 0;
@@ -774,7 +756,7 @@
         chartInstance.data.datasets[0].data = data;
         chartInstance.update();
         return;
-       } 
+      }
 
       chartInstance = new Chart(ctx, {
         type: "doughnut",
