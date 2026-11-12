@@ -665,7 +665,7 @@
       { ticker: "NLMK", name: "НЛМК", category: "Акции", board: "TQBR", qty: 600, avgPrice: 142.00, currPrice: 154.50 },
       { ticker: "GMKN", name: "ГМК Норильский никель", category: "Акции", board: "TQBR", qty: 860, avgPrice: 118.00, currPrice: 126.40 },
       { ticker: "CHMF", name: "Северсталь", category: "Акции", board: "TQBR", qty: 120, avgPrice: 1260.00, currPrice: 1340.00 },
-      { ticker: "T", name: "Т-Технологии", category: "Акции", board: "TQBR", qty: 400, avgPrice: 2890.00, currPrice: 3180.00 },
+      { ticker: "T", name: "Т-Технологии МКПАО ао", category: "Акции", board: "TQBR", qty: 400, avgPrice: 319.21, currPrice: 345.00 },
       { ticker: "MOEX", name: "Московская Биржа", category: "Акции", board: "TQBR", qty: 500, avgPrice: 198.00, currPrice: 214.50 },
       { ticker: "YDEX", name: "МКПАО Яндекс", category: "Акции", board: "TQBR", qty: 50, avgPrice: 3920.00, currPrice: 4250.00 },
       { ticker: "OZON", name: "МКПАО Озон", category: "Акции", board: "TQBR", qty: 30, avgPrice: 3450.00, currPrice: 3890.00 },
@@ -676,7 +676,7 @@
       { ticker: "COIN-N2-10", name: "Николай II 10 руб. (7.74 г Au)", category: "Золото", board: "GOLD", qty: 4, avgPrice: 64000.00, currPrice: 82233.19, pureGrams: 7.74, premium: 1.00 }
     ];
 
-    const STORAGE_KEY = "gsheets_portfolio_v5";
+    const STORAGE_KEY = "gsheets_portfolio_v6";
     let holdings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_HOLDINGS);
     let activeFilter = "all";
     let sortCol = "value";
@@ -1006,14 +1006,90 @@
       }
     }
 
+    async function fetchMoexBoardWithFallback(market, board) {
+      const targetUrl = `https://iss.moex.com/iss/engines/stock/markets/${market}/boards/${board}/securities.json?iss.meta=off&iss.only=securities,marketdata`;
+      // 1. Прямой запрос к ISS MOEX
+      try {
+        const res = await fetch(targetUrl);
+        if (res.ok) return await res.json();
+      } catch (e) {}
+
+      // 2. Резерв через CORS-прокси (если браузер блокирует прямой CORS к iss.moex.com)
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+      ];
+      for (const proxyUrl of proxies) {
+        try {
+          const res = await fetch(proxyUrl);
+          if (res.ok) return await res.json();
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    async function fetchSingleMoexTicker(market, board, ticker) {
+      const targetUrl = `https://iss.moex.com/iss/engines/stock/markets/${market}/boards/${board}/securities/${encodeURIComponent(ticker)}.json?iss.meta=off&iss.only=securities,marketdata`;
+      try {
+        const res = await fetch(targetUrl);
+        if (res.ok) return await res.json();
+      } catch (e) {}
+      try {
+        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+        if (res.ok) return await res.json();
+      } catch (e) {}
+      return null;
+    }
+
+    function extractPriceFromMoexJson(json, board) {
+      const map = {};
+      if (!json || !json.securities || !json.marketdata) return map;
+
+      const sCols = json.securities.columns || [];
+      const mCols = json.marketdata.columns || [];
+      const sId = sCols.indexOf("SECID");
+      const sPrev = sCols.indexOf("PREVPRICE");
+      const sFace = sCols.indexOf("FACEVALUE");
+
+      const mId = mCols.indexOf("SECID");
+      const mLast = mCols.indexOf("LAST");
+      const mCurr = mCols.indexOf("LCURRENTPRICE");
+      const mMkt = mCols.indexOf("MARKETPRICE");
+      const mClose = mCols.indexOf("CLOSEPRICE");
+
+      const mdMap = {};
+      (json.marketdata.data || []).forEach(r => {
+        const id = r[mId];
+        const liveP = r[mLast] || r[mCurr] || r[mMkt] || r[mClose];
+        if (id && liveP !== null && liveP !== undefined && Number(liveP) > 0) {
+          mdMap[id] = Number(liveP);
+        }
+      });
+
+      (json.securities.data || []).forEach(r => {
+        const id = r[sId];
+        const rawP = mdMap[id] ?? (r[sPrev] !== null ? Number(r[sPrev]) : null);
+        if (id && rawP && rawP > 0) {
+          if (board === "TQBR") {
+            map[id] = rawP;
+          } else {
+            const fv = Number(r[sFace]) || 1000;
+            map[id] = (rawP / 100) * fv;
+          }
+        }
+      });
+      return map;
+    }
+
     async function refreshMarketData() {
       const btn = document.getElementById("btnRefresh");
       const status = document.getElementById("syncStatus");
       btn.disabled = true;
       btn.textContent = "Загрузка...";
-      status.textContent = "Обновление котировок MOEX и курса ЦБ...";
+      status.textContent = "Запрос котировок MOEX...";
 
       try {
+        // 1. Курс USD/RUB ЦБ РФ
         const cbrRes = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
         if (cbrRes.ok) {
           const cbr = await cbrRes.json();
@@ -1022,46 +1098,40 @@
           }
         }
 
+        // 2. Пакетная загрузка по секциям TQBR, TQOB, TQCB
         const boards = ["TQBR", "TQOB", "TQCB"];
         const prices = {};
 
         for (const board of boards) {
           const market = board === "TQBR" ? "shares" : "bonds";
-          const url = `https://iss.moex.com/iss/engines/stock/markets/${market}/boards/${board}/securities.json?iss.meta=off&iss.only=securities,marketdata`;
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const json = await res.json();
-
-          const sCols = json.securities.columns;
-          const mCols = json.marketdata.columns;
-          const sId = sCols.indexOf("SECID");
-          const sPrev = sCols.indexOf("PREVPRICE");
-          const sFace = sCols.indexOf("FACEVALUE");
-          const mId = mCols.indexOf("SECID");
-          const mLast = mCols.indexOf("LAST");
-
-          const lastMap = {};
-          json.marketdata.data.forEach(r => {
-            if (r[mLast] !== null) lastMap[r[mId]] = r[mLast];
-          });
-
-          json.securities.data.forEach(r => {
-            const id = r[sId];
-            const p = lastMap[id] ?? r[sPrev];
-            if (p) {
-              prices[id] = board === "TQBR" ? p : (p / 100) * (r[sFace] || 1000);
-            }
-          });
+          const json = await fetchMoexBoardWithFallback(market, board);
+          const boardPrices = extractPriceFromMoexJson(json, board);
+          Object.assign(prices, boardPrices);
         }
 
-        // Запрос актуальной цены золота: сначала MOEX (GLDRUB_TOM), резерв — спот XAU/USD * курс ЦБ
+        // 3. Точечная дозагрузка тикеров, если пакетный запрос не вернул бумагу
+        const missingItems = holdings.filter(h => h.category !== "Золото" && !prices[h.ticker]);
+        for (const item of missingItems) {
+          const market = item.board === "TQBR" ? "shares" : "bonds";
+          const singleJson = await fetchSingleMoexTicker(market, item.board, item.ticker);
+          const singleMap = extractPriceFromMoexJson(singleJson, item.board);
+          if (singleMap[item.ticker]) {
+            prices[item.ticker] = singleMap[item.ticker];
+          }
+        }
+
+        // 4. Актуальная цена золота: MOEX GLDRUB_TOM или спот XAU/USD * курс ЦБ
         let gotLiveGold = false;
         try {
-          const gldRes = await fetch("https://iss.moex.com/iss/engines/currency/markets/selt/boards/CETS/securities/GLDRUB_TOM.json?iss.meta=off&iss.only=securities,marketdata");
-          if (gldRes.ok) {
+          const gldUrl = "https://iss.moex.com/iss/engines/currency/markets/selt/boards/CETS/securities/GLDRUB_TOM.json?iss.meta=off&iss.only=securities,marketdata";
+          let gldRes = await fetch(gldUrl).catch(() => null);
+          if (!gldRes || !gldRes.ok) {
+            gldRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(gldUrl)}`).catch(() => null);
+          }
+          if (gldRes && gldRes.ok) {
             const gldJson = await gldRes.json();
-            const gSecCols = gldJson.securities.columns;
-            const gMdCols = gldJson.marketdata.columns;
+            const gSecCols = gldJson.securities.columns || [];
+            const gMdCols = gldJson.marketdata.columns || [];
             const mdRow = gldJson.marketdata.data?.[0] || [];
             const secRow = gldJson.securities.data?.[0] || [];
             const gLast = mdRow[gMdCols.indexOf("LAST")] || mdRow[gMdCols.indexOf("LCURRENTPRICE")] || mdRow[gMdCols.indexOf("MARKETPRICE")];
@@ -1101,7 +1171,9 @@
         persist();
         renderAll();
         const t = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-        status.textContent = `Обновлено в ${t} (MOEX: ${updated})`;
+        status.textContent = updated > 0
+          ? `Обновлено в ${t} (MOEX: ${updated} из ${holdings.filter(h => h.category !== "Золото").length})`
+          : `MOEX недоступен из браузера в ${t} (показаны сохранённые цены)`;
       } catch (e) {
         status.textContent = "Ошибка сети MOEX (используются сохранённые цены)";
       } finally {
