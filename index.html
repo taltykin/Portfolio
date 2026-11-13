@@ -774,9 +774,8 @@
 
     .payouts-header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 3px;
       margin-bottom: 10px;
     }
 
@@ -788,18 +787,18 @@
       line-height: 1.2;
     }
 
+    .payouts-sub-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .payouts-sub {
       font-size: 12px;
       color: var(--ink-sec);
-      margin-top: 3px;
+      line-height: 1.35;
       font-variant-numeric: tabular-nums;
-    }
-
-    .payouts-controls {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-shrink: 0;
     }
 
     .payouts-tax-link {
@@ -939,6 +938,15 @@
       color: var(--ink);
       margin-top: 6px;
       text-transform: capitalize;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+    }
+
+    .payout-col:hover .payout-month-lbl,
+    .payout-col.active .payout-month-lbl {
+      opacity: 1;
     }
 
     /* Floating Hover Popover for Month Details */
@@ -1068,9 +1076,9 @@
     <div class="charts-row">
       <!-- 1. Portfolio Growth & Net Contributions Chart (Left) -->
       <div class="growth-section analytics-card">
-        <div class="growth-header" style="margin-bottom: 10px;">
-          <div>
-            <div class="growth-title">Динамика капитала</div>
+        <div class="payouts-header">
+          <div class="payouts-title">Динамика капитала</div>
+          <div class="payouts-sub-row">
             <div class="payouts-sub">Капитал и чистые вложения</div>
           </div>
         </div>
@@ -1081,12 +1089,11 @@
 
       <!-- 2. Clean Solid Pie Chart + Legend (Center) -->
       <div class="pie-col analytics-card">
-        <div class="growth-header" style="width: 100%; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
-          <div>
-            <div class="growth-title" id="pieTitle">Структура активов</div>
+        <div class="payouts-header">
+          <div class="payouts-title" id="pieTitle">Структура активов</div>
+          <div class="payouts-sub-row">
             <div class="payouts-sub">Доли классов и бумаг</div>
           </div>
-          <button type="button" id="pieResetBtn" class="mini-link" style="display: none; font-size: 12px; padding: 0;" onclick="setFilter('all', document.querySelector('.fpill[data-cat=\'all\']'))">← Все</button>
         </div>
         <div class="pie-section">
           <div class="pie-box">
@@ -1099,11 +1106,9 @@
       <!-- 3. 12-Month Payouts Stacked Column Chart (Right) -->
       <div class="payouts-col-wrap analytics-card" id="payoutsSection">
         <div class="payouts-header">
-          <div>
-            <div class="payouts-title">Выплаты 12 мес.</div>
+          <div class="payouts-title">Выплаты 12 мес.</div>
+          <div class="payouts-sub-row">
             <div class="payouts-sub" id="payoutsSummary">Расчёт купонов и дивидендов...</div>
-          </div>
-          <div class="payouts-controls">
             <button type="button" class="payouts-tax-link" id="btnTaxToggle" onclick="togglePayoutTax()" title="Нажмите для переключения: до НДФЛ / на руки (−13%)">До НДФЛ</button>
           </div>
         </div>
@@ -1502,7 +1507,6 @@
     function renderPie(classes, totalValue) {
       const isDrilled = activeFilter !== "all";
       const titleEl = document.getElementById("pieTitle");
-      const resetBtn = document.getElementById("pieResetBtn");
 
       let labels = [];
       let values = [];
@@ -1512,7 +1516,6 @@
 
       if (!isDrilled) {
         if (titleEl) titleEl.textContent = "Структура активов";
-        if (resetBtn) resetBtn.style.display = "none";
 
         labels = Object.keys(classes);
         values = labels.map(k => classes[k].value);
@@ -1526,7 +1529,6 @@
       } else {
         const classLabel = activeFilter === "Золото" ? "Структура золота" : `Структура: ${activeFilter.toLowerCase()}`;
         if (titleEl) titleEl.textContent = classLabel;
-        if (resetBtn) resetBtn.style.display = "inline-block";
 
         const classItems = holdings
           .filter(h => h.category === activeFilter)
