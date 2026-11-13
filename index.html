@@ -1632,12 +1632,46 @@
           plugins: {
             legend: { display: false },
             tooltip: {
-              callbacks: {
-                label: c => {
-                  const val = c.raw || 0;
-                  const pct = baseTotal > 0 ? ((val / baseTotal) * 100).toFixed(1) : "0.0";
-                  return ` ${c.label}: ${fmtMoney(val)} (${pct}%)`;
+              enabled: false,
+              external: context => {
+                const { chart, tooltip } = context;
+                let el = document.getElementById("chartJsLightTooltip");
+                if (!el) {
+                  el = document.createElement("div");
+                  el.id = "chartJsLightTooltip";
+                  el.style.cssText = "position:fixed;z-index:1005;pointer-events:none;background:#ffffff;color:#1d1d1f;border:1px solid #d2d2d7;border-radius:14px;padding:10px 14px;box-shadow:0 14px 34px rgba(0,0,0,0.12);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',sans-serif;font-size:12.5px;white-space:nowrap;transition:opacity 0.1s ease;";
+                  document.body.appendChild(el);
                 }
+                if (tooltip.opacity === 0) {
+                  el.style.opacity = "0";
+                  return;
+                }
+                const dp = tooltip.dataPoints?.[0];
+                if (!dp) return;
+                const val = dp.raw || 0;
+                const total = (dp.dataset.data || []).reduce((s, v) => s + (Number(v) || 0), 0);
+                const pct = total > 0 ? fmtDecimal((val / total) * 100, 1) : "0,0";
+                const color = Array.isArray(dp.dataset.backgroundColor) ? dp.dataset.backgroundColor[dp.dataIndex] : "#0071e3";
+
+                el.innerHTML = `
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="width:9px;height:9px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+                    <strong style="font-weight:600;color:#1d1d1f;">${dp.label}</strong>
+                    <span style="color:#6e6e73;">·</span>
+                    <span style="font-weight:600;color:#1d1d1f;font-variant-numeric:tabular-nums;">${fmtMoney(val)}</span>
+                    <span style="color:#6e6e73;font-variant-numeric:tabular-nums;">(${pct}%)</span>
+                  </div>
+                `;
+                el.style.opacity = "1";
+                const rect = chart.canvas.getBoundingClientRect();
+                const tipW = el.offsetWidth || 210;
+                const tipH = el.offsetHeight || 40;
+                let left = rect.left + tooltip.caretX - tipW / 2;
+                left = Math.max(12, Math.min(window.innerWidth - tipW - 12, left));
+                let top = rect.top + tooltip.caretY - tipH - 12;
+                if (top < 12) top = rect.top + tooltip.caretY + 12;
+                el.style.left = `${left}px`;
+                el.style.top = `${top}px`;
               }
             }
           }
@@ -2256,14 +2290,31 @@
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: "rgba(29, 29, 31, 0.94)",
-              titleFont: { size: 12, weight: "600" },
-              bodyFont: { size: 12 },
-              padding: 10,
-              cornerRadius: 8,
+              backgroundColor: "#ffffff",
+              titleColor: "#1d1d1f",
+              bodyColor: "#1d1d1f",
+              footerColor: "#6e6e73",
+              borderColor: "#d2d2d7",
+              borderWidth: 1,
+              titleFont: { size: 13, weight: "700", family: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif' },
+              bodyFont: { size: 12.5, weight: "500", family: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif' },
+              footerFont: { size: 12, weight: "500", family: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif' },
+              titleMarginBottom: 8,
+              bodySpacing: 6,
+              footerMarginTop: 8,
+              padding: { top: 12, bottom: 12, left: 14, right: 14 },
+              cornerRadius: 14,
+              usePointStyle: true,
+              boxWidth: 8,
+              boxHeight: 8,
+              boxPadding: 6,
               callbacks: {
-                label: c => ` ${c.dataset.label}: ${fmtMoney(c.raw || 0)}`,
-                afterBody: items => {
+                labelColor: c => ({
+                  borderColor: c.dataset.pillColor || "#0071e3",
+                  backgroundColor: c.dataset.pillColor || "#0071e3"
+                }),
+                label: c => `${c.dataset.label}: ${fmtMoney(c.raw || 0)}`,
+                footer: items => {
                   const valItem = items.find(i => i.dataset.label === "Текущая стоимость");
                   const costItem = items.find(i => i.dataset.label === "Себестоимость бумаг");
                   const invItem = items.find(i => i.dataset.label === "Вложено денег");
@@ -2276,9 +2327,8 @@
                     const tSign = totalDiff > 0 ? "+" : "";
                     const rSign = reinvDiff > 0 ? "+" : "";
                     return [
-                      ` ──────────────`,
-                      ` Реинвест (купоны/див./маржа): ${rSign}${fmtMoney(reinvDiff)}`,
-                      ` Итоговый результат: ${tSign}${fmtMoney(totalDiff)}`
+                      `Реинвест (купоны/див./маржа): ${rSign}${fmtMoney(reinvDiff)}`,
+                      `Итоговый результат: ${tSign}${fmtMoney(totalDiff)}`
                     ];
                   }
                   return [];
