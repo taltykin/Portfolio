@@ -1233,7 +1233,7 @@
         <div class="field-grid">
           <div class="field">
             <label>Тикер / ISIN</label>
-            <input type="text" id="fTicker" />
+            <input type="text" id="fTicker" onblur="lookupMoexTickerName()" placeholder="Например: RU000A106ZU6" />
           </div>
           <div class="field">
             <label>Наименование *</label>
@@ -1899,6 +1899,32 @@
       }
     }
 
+    
+    async function lookupMoexTickerName() {
+      const tickerInput = document.getElementById("fTicker");
+      const nameInput = document.getElementById("fName");
+      if (!tickerInput || !nameInput) return;
+      const val = tickerInput.value.trim().toUpperCase();
+      if (!val || nameInput.value.trim().length > 0) return;
+
+      const board = document.getElementById("fBoard")?.value || "TQCB";
+      const market = board === "TQBR" ? "shares" : "bonds";
+      
+      nameInput.placeholder = "Поиск в MOEX...";
+      try {
+        const json = await fetchSingleMoexTicker(market, board, val);
+        if (json && json.securities && json.securities.data && json.securities.data.length > 0) {
+          const cols = json.securities.columns || [];
+          const row = json.securities.data[0];
+          const nameIdx = cols.indexOf("SHORTNAME") >= 0 ? cols.indexOf("SHORTNAME") : cols.indexOf("SECNAME");
+          if (nameIdx >= 0 && row[nameIdx]) {
+            nameInput.value = row[nameIdx];
+          }
+        }
+      } catch (e) {}
+      nameInput.placeholder = "Например: Брусника 002P-04";
+    }
+
     function savePosition() {
       const idx = parseInt(document.getElementById("editIndex").value, 10);
       const category = document.getElementById("fCategory").value;
@@ -2494,9 +2520,9 @@
       "TRNFP": [{ month: 7, dps: 177.0 }],
       "X5":    [{ month: 7, dps: 350.0 }],
       "MGNT":  [{ month: 7, dps: 412.0 }],
-      "BELU":  [{ month: 5, dps: 135.0 }, { month: 10, dps: 95.0 }],
+      "BELU":  [{ month: 5, dps: 22.0 }, { month: 10, dps: 10.0 }],
       "NMTP":  [{ month: 7, dps: 0.85 }],
-      "PLZL":  [{ month: 12, dps: 130.0 }, { month: 6, dps: 145.0 }],
+      "PLZL":  [],
       "NLMK":  [{ month: 6, dps: 22.0 }],
       "GMKN":  [{ month: 7, dps: 8.5 }],
       "CHMF":  [{ month: 6, dps: 115.0 }, { month: 9, dps: 38.0 }],
