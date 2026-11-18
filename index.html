@@ -648,6 +648,41 @@
       align-items: end;
     }
 
+    .buy-more-box {
+      margin-top: 14px;
+      padding: 13px 14px;
+      background: var(--bg-alt);
+      border: 1px solid var(--divider-light);
+      border-radius: 12px;
+    }
+
+    .buy-more-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .buy-more-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .buy-more-badge {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--pos);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .buy-more-box .field {
+      margin-bottom: 0;
+    }
+
+
     .modal-footer {
       display: flex;
       justify-content: flex-end;
@@ -1233,26 +1268,49 @@
         <div class="field-grid">
           <div class="field">
             <label>Тикер / ISIN</label>
-            <input type="text" id="fTicker" onblur="lookupMoexTickerName()" placeholder="Например: RU000A106ZU6" />
+            <input type="text" id="fTicker" oninput="checkExistingTickerHint()" onblur="lookupMoexTickerName()" placeholder="Например: RU000A106ZU6" />
           </div>
           <div class="field">
             <label>Наименование *</label>
             <input type="text" id="fName" />
           </div>
         </div>
+        <div id="existingTickerBanner" style="display:none; margin-bottom: 12px; padding: 9px 12px; border-radius: 10px; background: #eef6ff; border: 1px solid #cce3fd; font-size: 12px; color: #1d1d1f; line-height: 1.4;"></div>
         <div class="field-grid">
           <div class="field">
-            <label>Количество (шт.) *</label>
-            <input type="number" id="fQty" step="1" />
+            <label id="lblQty">Количество (шт.) *</label>
+            <input type="number" id="fQty" step="any" oninput="updateAvgPreview()" />
           </div>
           <div class="field">
-            <label>Цена покупки (₽ за 1 шт.) *</label>
-            <input type="number" id="fAvgPrice" step="0.01" />
+            <label id="lblAvgPrice">Цена покупки (₽ за 1 шт.) *</label>
+            <input type="number" id="fAvgPrice" step="0.0001" oninput="updateAvgPreview()" />
           </div>
+        </div>
+        <div class="field" id="totalSpendCreateWrap" style="display:none;">
+          <label>Или общая затраченная сумма сделки (₽) — авторасчёт цены за 1 шт.</label>
+          <input type="number" id="fTotalSpendCreate" step="0.01" placeholder="Необязательно: если заполнить, цена 1 шт. посчитается сама" oninput="syncPriceFromTotalSpend()" />
         </div>
         <div class="field">
           <label>Текущая цена / цена продажи (₽ за 1 шт.)</label>
           <input type="number" id="fCurrPrice" step="0.01" placeholder="Если пусто — равна цене покупки" />
+        </div>
+
+        <!-- Докупка к существующей позиции (при редактировании) -->
+        <div class="buy-more-box" id="buyMoreBox" style="display: none;">
+          <div class="buy-more-head">
+            <span class="buy-more-title">+ Докупить к позиции</span>
+            <span class="buy-more-badge" id="avgPreviewBadge"></span>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Докуплено (шт.)</label>
+              <input type="number" id="fAddQty" step="any" min="0" placeholder="Напр. 2" oninput="updateAvgPreview()" />
+            </div>
+            <div class="field">
+              <label>Затраченная сумма (₽)</label>
+              <input type="number" id="fAddTotalCost" step="0.01" min="0" placeholder="Напр. 1808.40" oninput="updateAvgPreview()" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1840,9 +1898,104 @@
       renderAll();
     }
 
+    function syncPriceFromTotalSpend() {
+      const qty = parseFloat(document.getElementById("fQty").value);
+      const totalSpend = parseFloat(document.getElementById("fTotalSpendCreate").value);
+      if (!isNaN(qty) && qty > 0 && !isNaN(totalSpend) && totalSpend > 0) {
+        document.getElementById("fAvgPrice").value = (totalSpend / qty).toFixed(4);
+      }
+      checkExistingTickerHint();
+    }
+
+    function updateAvgPreview() {
+      const idx = parseInt(document.getElementById("editIndex").value, 10);
+      if (idx < 0) {
+        const totalSpend = parseFloat(document.getElementById("fTotalSpendCreate")?.value);
+        const qty = parseFloat(document.getElementById("fQty")?.value);
+        if (!isNaN(totalSpend) && totalSpend > 0 && !isNaN(qty) && qty > 0) {
+          document.getElementById("fAvgPrice").value = (totalSpend / qty).toFixed(4);
+        }
+        checkExistingTickerHint();
+        return;
+      }
+
+      const badge = document.getElementById("avgPreviewBadge");
+      if (!badge) return;
+
+      const baseQty = parseFloat(document.getElementById("fQty").value) || 0;
+      const baseAvg = parseFloat(document.getElementById("fAvgPrice").value) || 0;
+      const addQty = parseFloat(document.getElementById("fAddQty").value) || 0;
+      const addCost = parseFloat(document.getElementById("fAddTotalCost").value) || 0;
+
+      const origItem = holdings[idx];
+      const baseInvested = (origItem && origItem.investedExact !== undefined && Math.abs(baseQty - origItem.qty) < 1e-6 && Math.abs(baseAvg - origItem.avgPrice) < 1e-4)
+        ? origItem.investedExact
+        : (baseQty * baseAvg);
+
+      if (addQty > 0 && addCost > 0) {
+        const newQty = baseQty + addQty;
+        const newTotalInvested = baseInvested + addCost;
+        const newAvg = newTotalInvested / newQty;
+        badge.textContent = `Итог: ${fmtDecimal(newQty, newQty % 1 === 0 ? 0 : 2)} шт. · ср. ${fmtDecimal(newAvg, 2)} ₽`;
+      } else if (addQty > 0 && addCost <= 0) {
+        badge.textContent = "Укажите затраченную сумму сделки";
+      } else {
+        badge.textContent = "";
+      }
+    }
+
+    function checkExistingTickerHint() {
+      const idx = parseInt(document.getElementById("editIndex").value, 10);
+      const banner = document.getElementById("existingTickerBanner");
+      if (!banner) return;
+      if (idx >= 0) {
+        banner.style.display = "none";
+        return;
+      }
+
+      const rawTicker = document.getElementById("fTicker").value.trim().toUpperCase();
+      if (!rawTicker) {
+        banner.style.display = "none";
+        return;
+      }
+
+      const existing = holdings.find(h => h.ticker && h.ticker.toUpperCase() === rawTicker);
+      if (!existing) {
+        banner.style.display = "none";
+        return;
+      }
+
+      const addQty = parseFloat(document.getElementById("fQty").value) || 0;
+      const totalSpend = parseFloat(document.getElementById("fTotalSpendCreate")?.value) || 0;
+      const unitPrice = parseFloat(document.getElementById("fAvgPrice").value) || 0;
+      const addInvested = totalSpend > 0 ? totalSpend : (addQty * unitPrice);
+
+      const oldInv = existing.investedExact !== undefined ? existing.investedExact : (existing.qty * existing.avgPrice);
+      let previewText = `Бумага <strong>${existing.name}</strong> уже есть в портфеле (${fmtDecimal(existing.qty, 0)} шт. по ${fmtDecimal(existing.avgPrice, 2)} ₽). При сохранении покупка автоматически приплюсуется с пересчётом средней.`;
+
+      if (addQty > 0 && addInvested > 0) {
+        const resQty = existing.qty + addQty;
+        const resAvg = (oldInv + addInvested) / resQty;
+        previewText += `<br><strong>После сохранения: ${fmtDecimal(resQty, 0)} шт. · новая средняя ${fmtDecimal(resAvg, 2)} ₽</strong>`;
+      }
+
+      banner.innerHTML = previewText;
+      banner.style.display = "block";
+    }
+
     function openModal(idx = -1) {
       document.getElementById("editIndex").value = idx;
       const catSelect = document.getElementById("fCategory");
+      const buyMoreBox = document.getElementById("buyMoreBox");
+      const totalSpendWrap = document.getElementById("totalSpendCreateWrap");
+      const banner = document.getElementById("existingTickerBanner");
+
+      document.getElementById("fAddQty").value = "";
+      document.getElementById("fAddTotalCost").value = "";
+      document.getElementById("fTotalSpendCreate").value = "";
+      if (document.getElementById("avgPreviewBadge")) document.getElementById("avgPreviewBadge").textContent = "";
+      if (banner) banner.style.display = "none";
+
       if (idx >= 0) {
         const item = holdings[idx];
         document.getElementById("modalTitle").textContent = "Редактировать позицию";
@@ -1853,6 +2006,8 @@
         document.getElementById("fQty").value = item.qty;
         document.getElementById("fAvgPrice").value = item.avgPrice;
         document.getElementById("fCurrPrice").value = item.currPrice;
+        if (buyMoreBox) buyMoreBox.style.display = "block";
+        if (totalSpendWrap) totalSpendWrap.style.display = "none";
       } else {
         document.getElementById("modalTitle").textContent = "Добавить позицию";
         catSelect.value = "Облигации";
@@ -1865,6 +2020,8 @@
         document.getElementById("mContribDate").value = getTodayIso();
         document.getElementById("mContribAmount").value = "";
         document.getElementById("mContribNote").value = "";
+        if (buyMoreBox) buyMoreBox.style.display = "none";
+        if (totalSpendWrap) totalSpendWrap.style.display = "block";
       }
       syncBoardSelect();
       document.getElementById("editModal").classList.add("open");
@@ -1893,19 +2050,32 @@
       } else {
         const idx = parseInt(document.getElementById("editIndex").value, 10);
         document.getElementById("modalTitle").textContent = idx >= 0 ? "Редактировать позицию" : "Добавить позицию";
-        if (c === "Облигации") b.value = "TQCB";
-        else if (c === "Акции") b.value = "TQBR";
-        else b.value = "GOLD";
+        if (idx < 0) {
+          if (c === "Облигации") b.value = "TQCB";
+          else if (c === "Акции") b.value = "TQBR";
+          else b.value = "GOLD";
+        }
       }
     }
 
-    
     async function lookupMoexTickerName() {
       const tickerInput = document.getElementById("fTicker");
       const nameInput = document.getElementById("fName");
       if (!tickerInput || !nameInput) return;
       const val = tickerInput.value.trim().toUpperCase();
-      if (!val || nameInput.value.trim().length > 0) return;
+      if (!val) return;
+
+      checkExistingTickerHint();
+
+      const existing = holdings.find(h => h.ticker && h.ticker.toUpperCase() === val);
+      if (existing && nameInput.value.trim().length === 0) {
+        nameInput.value = existing.name;
+        document.getElementById("fCategory").value = existing.category;
+        document.getElementById("fBoard").value = existing.board;
+        return;
+      }
+
+      if (nameInput.value.trim().length > 0) return;
 
       const board = document.getElementById("fBoard")?.value || "TQCB";
       const market = board === "TQBR" ? "shares" : "bonds";
@@ -1956,7 +2126,11 @@
       const rawTicker = document.getElementById("fTicker").value.trim().toUpperCase();
       const rawName = document.getElementById("fName").value.trim();
       const qty = parseFloat(document.getElementById("fQty").value);
-      const avgPrice = parseFloat(document.getElementById("fAvgPrice").value);
+      const totalSpendCreate = parseFloat(document.getElementById("fTotalSpendCreate")?.value);
+      let avgPrice = parseFloat(document.getElementById("fAvgPrice").value);
+      if (idx < 0 && !isNaN(totalSpendCreate) && totalSpendCreate > 0 && !isNaN(qty) && qty > 0) {
+        avgPrice = Number((totalSpendCreate / qty).toFixed(4));
+      }
       const parsedCurr = parseFloat(document.getElementById("fCurrPrice").value);
       const currPrice = (!isNaN(parsedCurr) && parsedCurr > 0) ? parsedCurr : avgPrice;
 
@@ -1976,25 +2150,93 @@
       const ticker = rawTicker;
       const name = rawName || rawTicker;
 
-      const record = {
-        ticker,
-        name,
-        category,
-        board,
-        qty,
-        avgPrice,
-        currPrice,
-        faceValue: category === "Облигации" ? 1000 : undefined
-      };
-
       if (idx >= 0) {
-        if (holdings[idx].pureGrams && Math.abs(currPrice - holdings[idx].currPrice) < 1) {
-          record.pureGrams = holdings[idx].pureGrams;
-          record.premium = holdings[idx].premium;
+        const orig = holdings[idx];
+        const addQty = parseFloat(document.getElementById("fAddQty")?.value) || 0;
+        const addTotalCost = parseFloat(document.getElementById("fAddTotalCost")?.value) || 0;
+
+        if (addQty > 0 && addTotalCost <= 0) {
+          alert("Укажите общую затраченную сумму сделки (₽) для докупленных бумаг.");
+          return;
         }
+        if (addTotalCost > 0 && addQty <= 0) {
+          alert("Укажите количество докупленных бумаг (шт.).");
+          return;
+        }
+
+        const baseUnchanged = Math.abs(qty - orig.qty) < 1e-6 && Math.abs(avgPrice - orig.avgPrice) < 1e-4;
+        const prevInvested = (orig.investedExact !== undefined && baseUnchanged)
+          ? orig.investedExact
+          : (qty * avgPrice);
+
+        let finalQty = qty;
+        let finalInvested = prevInvested;
+        let finalAvgPrice = avgPrice;
+
+        if (addQty > 0 && addTotalCost > 0) {
+          finalQty = qty + addQty;
+          finalInvested = Number((prevInvested + addTotalCost).toFixed(2));
+          finalAvgPrice = Number((finalInvested / finalQty).toFixed(4));
+        } else {
+          finalInvested = Number((qty * avgPrice).toFixed(2));
+        }
+
+        const record = {
+          ...orig,
+          ticker,
+          name,
+          category,
+          board,
+          qty: finalQty,
+          avgPrice: finalAvgPrice,
+          investedExact: finalInvested,
+          currPrice,
+          faceValue: category === "Облигации" ? (orig.faceValue || 1000) : undefined
+        };
+
+        if (orig.pureGrams && Math.abs(currPrice - orig.currPrice) < 1) {
+          record.pureGrams = orig.pureGrams;
+          record.premium = orig.premium;
+        }
+
         holdings[idx] = record;
       } else {
-        holdings.push(record);
+        const existingIdx = ticker
+          ? holdings.findIndex(h => h.ticker && h.ticker.toUpperCase() === ticker)
+          : -1;
+
+        const addedInvested = (!isNaN(totalSpendCreate) && totalSpendCreate > 0)
+          ? Number(totalSpendCreate.toFixed(2))
+          : Number((qty * avgPrice).toFixed(2));
+
+        if (existingIdx >= 0) {
+          const ex = holdings[existingIdx];
+          const oldInvested = ex.investedExact !== undefined ? ex.investedExact : (ex.qty * ex.avgPrice);
+          const mergedQty = ex.qty + qty;
+          const mergedInvested = Number((oldInvested + addedInvested).toFixed(2));
+          const mergedAvg = Number((mergedInvested / mergedQty).toFixed(4));
+
+          holdings[existingIdx] = {
+            ...ex,
+            name: name || ex.name,
+            qty: mergedQty,
+            avgPrice: mergedAvg,
+            investedExact: mergedInvested,
+            currPrice: (!isNaN(parsedCurr) && parsedCurr > 0) ? parsedCurr : ex.currPrice
+          };
+        } else {
+          holdings.push({
+            ticker,
+            name,
+            category,
+            board,
+            qty,
+            avgPrice,
+            investedExact: addedInvested,
+            currPrice,
+            faceValue: category === "Облигации" ? 1000 : undefined
+          });
+        }
       }
 
       persist();
