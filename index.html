@@ -683,6 +683,41 @@
     }
 
 
+    .buy-more-box {
+      margin-top: 14px;
+      padding: 13px 14px;
+      background: var(--bg-alt);
+      border: 1px solid var(--divider-light);
+      border-radius: 12px;
+    }
+
+    .buy-more-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .buy-more-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .buy-more-badge {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--pos);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .buy-more-box .field {
+      margin-bottom: 0;
+    }
+
+
     .modal-footer {
       display: flex;
       justify-content: flex-end;
@@ -1424,6 +1459,53 @@
 
     function fmtDecimal(v, d = 2) {
       return new Intl.NumberFormat("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+    }
+
+    function deduplicateHoldings(list) {
+      if (!Array.isArray(list)) return [];
+      const merged = [];
+      const indexByKey = {};
+
+      list.forEach(item => {
+        if (!item) return;
+        const cleanTicker = (item.ticker || "").trim().toUpperCase();
+        const key = cleanTicker ? `T:${cleanTicker}` : `N:${(item.category || "").trim()}:${(item.name || "").trim().toLowerCase()}`;
+
+        const qty = Number(item.qty) || 0;
+        const avgPrice = Number(item.avgPrice) || 0;
+        const inv = (item.investedExact !== undefined && !isNaN(Number(item.investedExact)))
+          ? Number(item.investedExact)
+          : (qty * avgPrice);
+
+        if (indexByKey[key] === undefined) {
+          indexByKey[key] = merged.length;
+          merged.push({
+            ...item,
+            ticker: cleanTicker,
+            qty,
+            avgPrice,
+            investedExact: Number(inv.toFixed(2))
+          });
+        } else {
+          const existing = merged[indexByKey[key]];
+          const oldInv = (existing.investedExact !== undefined)
+            ? Number(existing.investedExact)
+            : (existing.qty * existing.avgPrice);
+          const totalQty = existing.qty + qty;
+          const totalInv = Number((oldInv + inv).toFixed(2));
+          const newAvg = totalQty > 0 ? Number((totalInv / totalQty).toFixed(4)) : existing.avgPrice;
+
+          merged[indexByKey[key]] = {
+            ...existing,
+            qty: totalQty,
+            avgPrice: newAvg,
+            investedExact: totalInv,
+            currPrice: (item.currPrice && item.currPrice > 0) ? item.currPrice : existing.currPrice
+          };
+        }
+      });
+
+      return merged;
     }
 
     function persist() {
@@ -2713,12 +2795,14 @@
       reader.onload = e => {
         try {
           const data = JSON.parse(e.target.result);
-          if (Array.isArray(data.holdings)) holdings = data.holdings;
+          if (Array.isArray(data.holdings)) holdings = deduplicateHoldings(data.holdings);
           if (Array.isArray(data.contributions)) contributions = data.contributions;
           if (Array.isArray(data.historySnapshots)) historySnapshots = data.historySnapshots;
           persist();
           renderAll();
-          alert("Данные портфеля и история успешно восстановлены.");
+          closeModal();
+          closeContribModal();
+          alert("Данные портфеля и история успешно восстановлены (дубликаты автоматически объединены).");
         } catch (err) {
           alert("Не удалось прочитать файл резервной копии.");
         }
@@ -3240,6 +3324,8 @@
     (async function bootstrap() {
       if (!Array.isArray(holdings) || holdings.length === 0) {
         holdings = structuredClone(DEFAULT_HOLDINGS);
+      } else {
+        holdings = deduplicateHoldings(holdings);
       }
       if (!Array.isArray(contributions) || contributions.length === 0) {
         contributions = structuredClone(DEFAULT_CONTRIBUTIONS);
