@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-11-18T21:14:41.621Z",
+  "exportedAt": "2026-11-18T21:45:24.035Z",
   "holdings": [
     {
       "ticker": "SU26247RMFS5",
@@ -9,7 +9,7 @@
       "qty": 400,
       "avgPrice": 885.35,
       "investedExact": 354141,
-      "currPrice": 792.1,
+      "currPrice": 792.11,
       "faceValue": 1000,
       "prevPrice": 792.45
     },
@@ -33,7 +33,7 @@
       "qty": 409,
       "avgPrice": 992.54,
       "investedExact": 405947.62,
-      "currPrice": 851.4,
+      "currPrice": 847.7,
       "faceValue": 1000,
       "prevPrice": 854.2
     },
@@ -45,7 +45,7 @@
       "qty": 337,
       "avgPrice": 1006.6636,
       "investedExact": 339245.65,
-      "currPrice": 905.9,
+      "currPrice": 906.5,
       "faceValue": 1000,
       "prevPrice": 908
     },
@@ -57,7 +57,7 @@
       "qty": 100,
       "avgPrice": 1015.74,
       "investedExact": 101574,
-      "currPrice": 608.6,
+      "currPrice": 611,
       "faceValue": 1000,
       "prevPrice": 609.7
     },
@@ -69,7 +69,7 @@
       "qty": 400,
       "avgPrice": 1004.7,
       "investedExact": 401878.21,
-      "currPrice": 845.6,
+      "currPrice": 844.4,
       "faceValue": 1000,
       "prevPrice": 844.8
     },
@@ -81,7 +81,7 @@
       "qty": 200,
       "avgPrice": 1000.99,
       "investedExact": 200197.57,
-      "currPrice": 582.3,
+      "currPrice": 581.1,
       "faceValue": 1000,
       "prevPrice": 592.5
     },
@@ -93,7 +93,7 @@
       "qty": 200,
       "avgPrice": 1025.4,
       "investedExact": 205080,
-      "currPrice": 988,
+      "currPrice": 989.1,
       "faceValue": 1000,
       "prevPrice": 999.8
     },
@@ -105,7 +105,7 @@
       "qty": 100,
       "avgPrice": 989.4,
       "investedExact": 98940,
-      "currPrice": 972.5,
+      "currPrice": 972.6,
       "faceValue": 1000,
       "prevPrice": 974.3
     },
@@ -117,7 +117,7 @@
       "qty": 200,
       "avgPrice": 989.52,
       "investedExact": 197903,
-      "currPrice": 986.7,
+      "currPrice": 986.6,
       "faceValue": 1000,
       "prevPrice": 999
     },
@@ -139,10 +139,10 @@
       "qty": 4,
       "avgPrice": 95475.25,
       "investedExact": 381901,
-      "currPrice": 82658,
+      "currPrice": 78298,
       "pureGrams": 7.78,
       "premium": 1,
-      "prevPrice": 82658
+      "prevPrice": 80220
     },
     {
       "ticker": "TRNFP",
@@ -163,7 +163,7 @@
       "qty": 40,
       "avgPrice": 5380.66,
       "investedExact": 215226.5,
-      "currPrice": 5955,
+      "currPrice": 5948.5,
       "prevPrice": 6031.5
     },
     {
@@ -174,7 +174,7 @@
       "qty": 300,
       "avgPrice": 1002.41,
       "investedExact": 300724.3,
-      "currPrice": 1102,
+      "currPrice": 1102.4,
       "prevPrice": 1118.4
     },
     {
@@ -185,7 +185,7 @@
       "qty": 60,
       "avgPrice": 3478.45,
       "investedExact": 208707,
-      "currPrice": 1968,
+      "currPrice": 1962,
       "prevPrice": 2005
     },
     {
@@ -196,7 +196,7 @@
       "qty": 183,
       "avgPrice": 2727.19,
       "investedExact": 499076.1,
-      "currPrice": 2354,
+      "currPrice": 2353.5,
       "prevPrice": 2371
     },
     {
@@ -207,7 +207,7 @@
       "qty": 450,
       "avgPrice": 431.54,
       "investedExact": 194191.6,
-      "currPrice": 308.8,
+      "currPrice": 309,
       "prevPrice": 304.6
     },
     {
@@ -229,7 +229,7 @@
       "qty": 60,
       "avgPrice": 2302,
       "investedExact": 138120,
-      "currPrice": 1058.6,
+      "currPrice": 1057,
       "prevPrice": 1081.6
     },
     {
@@ -240,7 +240,7 @@
       "qty": 600,
       "avgPrice": 118.13,
       "investedExact": 70880,
-      "currPrice": 76.16,
+      "currPrice": 76.1,
       "prevPrice": 76.22
     },
     {
@@ -251,7 +251,7 @@
       "qty": 860,
       "avgPrice": 122.84,
       "investedExact": 105645,
-      "currPrice": 115.16,
+      "currPrice": 115.1,
       "prevPrice": 118.86
     },
     {
@@ -273,7 +273,7 @@
       "qty": 1100,
       "avgPrice": 295.41,
       "investedExact": 324948.89,
-      "currPrice": 297.5,
+      "currPrice": 297.66,
       "prevPrice": 297.98
     },
     {
@@ -284,7 +284,7 @@
       "qty": 400,
       "avgPrice": 319.21,
       "investedExact": 127682,
-      "currPrice": 292.6,
+      "currPrice": 292.4,
       "prevPrice": 292.14
     },
     {
@@ -295,7 +295,7 @@
       "qty": 500,
       "avgPrice": 170.69,
       "investedExact": 85345,
-      "currPrice": 165.16,
+      "currPrice": 164.61,
       "prevPrice": 164.92
     },
     {
@@ -306,7 +306,7 @@
       "qty": 50,
       "avgPrice": 4385.2,
       "investedExact": 219260,
-      "currPrice": 3411.5,
+      "currPrice": 3406.5,
       "prevPrice": 3412.5
     },
     {
@@ -317,7 +317,7 @@
       "qty": 30,
       "avgPrice": 4534.83,
       "investedExact": 136045,
-      "currPrice": 3671,
+      "currPrice": 3669.5,
       "prevPrice": 3697.5
     },
     {
@@ -328,30 +328,8 @@
       "qty": 4000,
       "avgPrice": 48.91,
       "investedExact": 195630,
-      "currPrice": 48.24,
+      "currPrice": 48.13,
       "prevPrice": 48.23
-    },
-    {
-      "ticker": "RU000A10DA74",
-      "name": "ЭталонФин4",
-      "category": "Облигации",
-      "board": "TQCB",
-      "qty": 2,
-      "avgPrice": 904.2,
-      "currPrice": 905.9,
-      "faceValue": 1000,
-      "prevPrice": 908
-    },
-    {
-      "ticker": "RU000A10DA74",
-      "name": "ЭталонФин4",
-      "category": "Облигации",
-      "board": "TQCB",
-      "qty": 2,
-      "avgPrice": 904.2,
-      "currPrice": 905.9,
-      "faceValue": 1000,
-      "prevPrice": 908
     }
   ],
   "contributions": [
@@ -395,44 +373,14 @@
   "historySnapshots": [
     {
       "date": "2026-11-12",
-      "value": 6032206.4,
-      "costBasis": 6855832.16,
-      "contrib": 6556696.15
-    },
-    {
-      "date": "2026-11-13",
-      "value": 6049008.9,
-      "costBasis": 6855832.16,
-      "contrib": 6556696.15
-    },
-    {
-      "date": "2026-11-14",
-      "value": 6067982.5,
-      "costBasis": 6855832.16,
-      "contrib": 6556696.15
-    },
-    {
-      "date": "2026-11-15",
-      "value": 6024394.5,
-      "costBasis": 6855832.16,
-      "contrib": 6556696.15
-    },
-    {
-      "date": "2026-11-16",
-      "value": 5981734.2,
-      "costBasis": 6855832.16,
-      "contrib": 6556696.15
-    },
-    {
-      "date": "2026-11-17",
-      "value": 6004000.1,
-      "costBasis": 6855832.16,
-      "contrib": 6556696.15
+      "value": 6034910.6,
+      "contrib": 6556696.15,
+      "costBasis": 6855832.16
     },
     {
       "date": "2026-11-18",
-      "value": 5979432.7,
-      "costBasis": 6861260.64,
+      "value": 5955192.9,
+      "costBasis": 6857643.84,
       "contrib": 6556696.15
     }
   ]

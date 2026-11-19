@@ -393,6 +393,104 @@
       letter-spacing: -0.02em;
     }
 
+    .positions-title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .seg-switch {
+      display: inline-flex;
+      background: var(--bg-alt);
+      border: 1px solid var(--divider-light);
+      border-radius: 980px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .seg-btn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 980px;
+      border: none;
+      background: transparent;
+      color: var(--ink-sec);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .seg-btn:hover {
+      color: var(--ink);
+    }
+
+    .seg-btn.active {
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .pie-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    tr.issuer-parent-row {
+      cursor: pointer;
+      background: #ffffff;
+    }
+
+    tr.issuer-parent-row:hover {
+      background: #f8f8fa;
+    }
+
+    tr.issuer-child-row {
+      background: #fbfbfd;
+    }
+
+    tr.issuer-child-row td:first-child {
+      padding-left: 28px;
+    }
+
+    .issuer-chevron {
+      display: inline-block;
+      width: 14px;
+      font-size: 10px;
+      color: var(--ink-muted);
+      transition: transform 0.15s ease;
+      margin-right: 4px;
+    }
+
+    .issuer-chevron.open {
+      transform: rotate(90deg);
+      color: var(--ink);
+    }
+
+    .issuer-count-pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-sec);
+      background: var(--bg-alt);
+      border: 1px solid var(--divider-light);
+      border-radius: 980px;
+      padding: 1px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .share-warn {
+      color: var(--orange-eyebrow);
+      font-weight: 700;
+    }
+
     .filter-pills {
       display: flex;
       gap: 8px;
@@ -1162,7 +1260,7 @@
         <div class="payouts-header">
           <div class="payouts-title" id="pieTitle">Структура активов</div>
           <div class="payouts-sub-row">
-            <div class="payouts-sub">Доли классов и бумаг</div>
+            <div class="payouts-sub" id="pieSubTitle">Доли классов и бумаг</div>
           </div>
         </div>
         <div class="pie-section">
@@ -1197,6 +1295,7 @@
         <button class="fpill" data-cat="Облигации" onclick="setFilter('Облигации', this)">Облигации</button>
         <button class="fpill" data-cat="Акции" onclick="setFilter('Акции', this)">Акции</button>
         <button class="fpill" data-cat="Золото" onclick="setFilter('Золото', this)">Золото</button>
+        <button class="fpill" data-cat="issuers" onclick="setFilter('issuers', this)">Эмитент</button>
         <input type="text" class="search-pill" id="searchInput" placeholder="Поиск..." oninput="renderAll()" />
       </div>
     </div>
@@ -1309,6 +1408,11 @@
             <label>Наименование *</label>
             <input type="text" id="fName" />
           </div>
+        </div>
+        <div class="field">
+          <label>Эмитент (для группировки активов)</label>
+          <input type="text" id="fIssuer" list="issuersDatalist" placeholder="Автоопределение по бумаге или введите вручную" />
+          <datalist id="issuersDatalist"></datalist>
         </div>
         <div id="existingTickerBanner" style="display:none; margin-bottom: 12px; padding: 9px 12px; border-radius: 10px; background: #eef6ff; border: 1px solid #cce3fd; font-size: 12px; color: #1d1d1f; line-height: 1.4;"></div>
         <div class="field-grid">
@@ -1441,6 +1545,81 @@
 
     let activeFilter = "all";
     let plPeriod = "today";
+    let expandedIssuers = {};
+
+    function toggleIssuerRow(issuerKey) {
+      expandedIssuers[issuerKey] = !expandedIssuers[issuerKey];
+      renderAll();
+    }
+
+    const ISSUER_RULES = [
+      { test: /^(SU26|SU29|SU25|ОФЗ)/i, issuer: "Минфин России (ОФЗ)" },
+      { test: /(ЭТАЛОН|RU000A10DA74|RU000A10EST2)/i, issuer: "Группа Эталон" },
+      { test: /(АПРИ|RU000A10CM06|RU000A10ERC0)/i, issuer: "АПРИ" },
+      { test: /(БРУСНИК|RU000A10C8F3)/i, issuer: "Брусника" },
+      { test: /(АЭРОФЬЮ|RU000A10CZC7)/i, issuer: "Аэрофьюэлз" },
+      { test: /(ФАБРИКА ПО|RU000A10FX18)/i, issuer: "Фабрика ПО" },
+      { test: /(СЕЛИГДАР|RU000A10D3S6)/i, issuer: "Селигдар" },
+      { test: /^(SBER|SBERP|СБЕР)/i, issuer: "Сбербанк" },
+      { test: /^(LKOH|ЛУКОЙЛ)/i, issuer: "ЛУКОЙЛ" },
+      { test: /^(NVTK|НОВАТЭК)/i, issuer: "НОВАТЭК" },
+      { test: /^(TRNFP|TRNF|ТРАНСНЕФТЬ)/i, issuer: "Транснефть" },
+      { test: /^(MGNT|МАГНИТ)/i, issuer: "Магнит" },
+      { test: /^(X5|FIVE|ИКС 5)/i, issuer: "ИКС 5 (X5 Group)" },
+      { test: /^(BELU|НОВАБЕВ)/i, issuer: "НоваБев Групп" },
+      { test: /^(NMTP|НМТП)/i, issuer: "НМТП" },
+      { test: /^(PLZL|ПОЛЮС)/i, issuer: "Полюс" },
+      { test: /^(NLMK|НЛМК)/i, issuer: "НЛМК" },
+      { test: /^(GMKN|НОРИЛЬСК)/i, issuer: "Норникель" },
+      { test: /^(CHMF|СЕВЕРСТАЛЬ)/i, issuer: "Северсталь" },
+      { test: /^(T|TCSG|Т-ТЕХНОЛОГИИ)/i, issuer: "Т-Технологии" },
+      { test: /^(MOEX|МОСКОВСКАЯ БИРЖА)/i, issuer: "Московская Биржа" },
+      { test: /^(YDEX|YNDX|ЯНДЕКС)/i, issuer: "Яндекс" },
+      { test: /^(OZON|МКПАО ОЗОН)$/i, issuer: "Ozon" },
+      { test: /^(OZPH|ОЗОН ФАРМ)/i, issuer: "Озон Фармацевтика" },
+      { test: /(НИКОЛАЯ|ГПЗ|XAUUSD)/i, issuer: "Физическое золото" }
+    ];
+
+    function inferIssuer(item) {
+      if (item && item.issuer && String(item.issuer).trim().length > 0) {
+        return String(item.issuer).trim();
+      }
+      if (!item) return "Прочие";
+      if (item.category === "Золото") return "Физическое золото";
+      const t = (item.ticker || "").trim();
+      const n = (item.name || "").trim();
+      for (const r of ISSUER_RULES) {
+        if ((t && r.test.test(t)) || (n && r.test.test(n))) {
+          return r.issuer;
+        }
+      }
+      const cleaned = n
+        .replace(/\s+(БО-)?\d{2,3}[РP]-\d+.*$/i, "")
+        .replace(/\s*\((ап|ао)\)\s*$/i, "")
+        .replace(/\s+(МКПАО|ПАО|ООО|АО)\s*/gi, " ")
+        .trim();
+      return cleaned || t || "Прочие";
+    }
+
+    function ensureIssuersPopulated() {
+      let changed = false;
+      holdings.forEach(h => {
+        const resolved = inferIssuer(h);
+        if (h.issuer !== resolved) {
+          h.issuer = resolved;
+          changed = true;
+        }
+      });
+      if (changed) persist();
+      updateIssuersDatalist();
+    }
+
+    function updateIssuersDatalist() {
+      const dl = document.getElementById("issuersDatalist");
+      if (!dl) return;
+      const uniqueIssuers = Array.from(new Set(holdings.map(h => inferIssuer(h)))).sort((a, b) => a.localeCompare(b));
+      dl.innerHTML = uniqueIssuers.map(iss => `<option value="${iss.replace(/"/g, '&quot;')}"></option>`).join("");
+    }
 
     function togglePlPeriod() {
       plPeriod = plPeriod === "all" ? "today" : "all";
@@ -1645,8 +1824,9 @@
     };
 
     function renderPie(classes, totalValue) {
-      const isDrilled = activeFilter !== "all";
+      const isDrilled = activeFilter !== "all" && activeFilter !== "issuers";
       const titleEl = document.getElementById("pieTitle");
+      const subTitleEl = document.getElementById("pieSubTitle");
 
       let labels = [];
       let values = [];
@@ -1656,6 +1836,7 @@
 
       if (!isDrilled) {
         if (titleEl) titleEl.textContent = "Структура активов";
+        if (subTitleEl) subTitleEl.textContent = "Доли классов и бумаг";
 
         labels = Object.keys(classes);
         values = labels.map(k => classes[k].value);
@@ -1669,6 +1850,7 @@
       } else {
         const classLabel = activeFilter === "Золото" ? "Структура золота" : `Структура: ${activeFilter.toLowerCase()}`;
         if (titleEl) titleEl.textContent = classLabel;
+        if (subTitleEl) subTitleEl.textContent = "Доли бумаг внутри класса";
 
         const classItems = holdings
           .filter(h => h.category === activeFilter)
@@ -1692,7 +1874,7 @@
             name: item.name,
             value: item.value,
             color: colors[idx],
-            onClick: `togglePieAssetSearch('${item.name.replace(/'/g, "\'")}')`
+            onClick: `togglePieAssetSearch('${item.name.replace(/'/g, "\\'")}')`
           }));
         } else {
           const topItems = classItems.slice(0, maxLegendRows - 1);
@@ -1701,7 +1883,7 @@
             name: item.name,
             value: item.value,
             color: colors[idx],
-            onClick: `togglePieAssetSearch('${item.name.replace(/'/g, "\'")}')`
+            onClick: `togglePieAssetSearch('${item.name.replace(/'/g, "\\'")}')`
           }));
           legendItems.push({
             name: `Прочие (${classItems.length - (maxLegendRows - 1)})`,
@@ -1758,7 +1940,7 @@
             if (!elements || elements.length === 0) return;
             const idx = elements[0].index;
             const clickedLabel = pieChart.data.labels[idx];
-            if (activeFilter === "all") {
+            if (activeFilter === "all" || activeFilter === "issuers") {
               selectPieClass(clickedLabel);
             } else {
               togglePieAssetSearch(clickedLabel);
@@ -1824,6 +2006,7 @@
 
       const isToday = plPeriod === "today";
       let rows = holdings.map((item, idx) => {
+        const issuerName = inferIssuer(item);
         const invested = (item.investedExact !== undefined) ? item.investedExact : (item.qty * item.avgPrice);
         const effectivePrev = (item.prevPrice !== undefined && item.prevPrice > 0) ? item.prevPrice : item.currPrice;
         const prevValue = item.qty * effectivePrev;
@@ -1832,15 +2015,159 @@
         const plRub = value - baseVal;
         const plPct = baseVal > 0 ? (plRub / baseVal) * 100 : 0;
         const share = totalPortfolioVal > 0 ? (value / totalPortfolioVal) * 100 : 0;
-        return { ...item, idx, invested, prevValue, value, plRub, plPct, share };
+        return { ...item, issuerName, idx, invested, prevValue, value, plRub, plPct, share };
       });
 
-      if (activeFilter !== "all") {
+      if (activeFilter !== "all" && activeFilter !== "issuers") {
         rows = rows.filter(r => r.category === activeFilter);
       }
 
       if (q) {
-        rows = rows.filter(r => r.name.toLowerCase().includes(q) || (r.ticker && r.ticker.toLowerCase().includes(q)));
+        rows = rows.filter(r =>
+          r.name.toLowerCase().includes(q) ||
+          r.issuerName.toLowerCase().includes(q) ||
+          (r.ticker && r.ticker.toLowerCase().includes(q))
+        );
+      }
+
+      const tbody = document.getElementById("holdingsBody");
+
+      if (activeFilter === "issuers") {
+        const groupsMap = {};
+        rows.forEach(r => {
+          const key = r.issuerName;
+          if (!groupsMap[key]) {
+            groupsMap[key] = {
+              name: key,
+              items: [],
+              categories: new Set(),
+              qty: 0,
+              invested: 0,
+              prevValue: 0,
+              value: 0
+            };
+          }
+          const g = groupsMap[key];
+          g.items.push(r);
+          g.categories.add(r.category);
+          g.qty += r.qty;
+          g.invested += r.invested;
+          g.prevValue += r.prevValue;
+          g.value += r.value;
+        });
+
+        let groups = Object.values(groupsMap).map(g => {
+          const baseVal = isToday ? g.prevValue : g.invested;
+          const plRub = g.value - baseVal;
+          const plPct = baseVal > 0 ? (plRub / baseVal) * 100 : 0;
+          const share = totalPortfolioVal > 0 ? (g.value / totalPortfolioVal) * 100 : 0;
+          const category = Array.from(g.categories).join(" + ");
+          const avgPrice = g.qty > 0 ? (g.invested / g.qty) : 0;
+          const currPrice = g.qty > 0 ? (g.value / g.qty) : 0;
+          return { ...g, category, avgPrice, currPrice, plRub, plPct, share };
+        });
+
+        groups.sort((a, b) => {
+          const vA = a[sortCol];
+          const vB = b[sortCol];
+          if (typeof vA === "string") {
+            return sortAsc ? vA.localeCompare(vB) : vB.localeCompare(vA);
+          }
+          return sortAsc ? vA - vB : vB - vA;
+        });
+
+        tbody.innerHTML = groups.map(g => {
+          const isOpen = !!expandedIssuers[g.name] || q.length > 0;
+          const cats = Array.from(g.categories);
+          const dotsHtml = cats.map(cat => {
+            const col = cat === "Акции" ? "#0071e3" : (cat === "Облигации" ? "#34a853" : "#e67e22");
+            return `<span class="c-dot" style="background:${col};"></span>`;
+          }).join("");
+          const plCls = g.plRub >= 0 ? "pos" : "neg";
+          const shareCls = g.share >= 12.0 ? "share-warn" : "";
+          const safeName = g.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+          const childrenSorted = [...g.items].sort((a, b) => b.value - a.value);
+
+          const parentRow = `
+            <tr class="issuer-parent-row" onclick="toggleIssuerRow('${safeName}')">
+              <td>
+                <span class="asset-name">
+                  <span class="issuer-chevron ${isOpen ? "open" : ""}">▶</span>${g.name}
+                  <span class="issuer-count-pill">${g.items.length}</span>
+                </span>
+              </td>
+              <td>
+                <span class="class-dot-label">${dotsHtml}${g.category}</span>
+              </td>
+              <td class="num">${g.items.length === 1 ? fmtDecimal(g.qty, 0) : "—"}</td>
+              <td class="num">${g.items.length === 1 ? fmtDecimal(g.avgPrice, 2) + " ₽" : "—"}</td>
+              <td class="num">${g.items.length === 1 ? "<strong>" + fmtDecimal(g.currPrice, 2) + " ₽</strong>" : "—"}</td>
+              <td class="num">${fmtMoney(g.invested)}</td>
+              <td class="num"><strong>${fmtMoney(g.value)}</strong></td>
+              <td class="num ${plCls}">${g.plRub > 0 ? "+" : ""}${fmtMoney(g.plRub)}</td>
+              <td class="num ${plCls}">${g.plPct > 0 ? "+" : ""}${fmtDecimal(g.plPct, 2)}%</td>
+              <td class="num ${shareCls}">${fmtDecimal(g.share, 1)}%</td>
+              <td class="num"></td>
+            </tr>
+          `;
+
+          if (!isOpen) return parentRow;
+
+          const childRows = childrenSorted.map(r => {
+            const dotColor = r.category === "Акции" ? "#0071e3" : (r.category === "Облигации" ? "#34a853" : "#e67e22");
+            const rPlCls = r.plRub >= 0 ? "pos" : "neg";
+            return `
+              <tr class="issuer-child-row">
+                <td>
+                  <span class="asset-name" style="font-size:13px; font-weight:500;">${r.name}</span>
+                  ${r.ticker ? `<span class="asset-sub">${r.ticker}</span>` : ""}
+                </td>
+                <td>
+                  <span class="class-dot-label">
+                    <span class="c-dot" style="background:${dotColor};"></span>${r.category}
+                  </span>
+                </td>
+                <td class="num">${fmtDecimal(r.qty, 0)}</td>
+                <td class="num">${fmtDecimal(r.avgPrice, 2)} ₽</td>
+                <td class="num">${fmtDecimal(r.currPrice, 2)} ₽</td>
+                <td class="num">${fmtMoney(r.invested)}</td>
+                <td class="num">${fmtMoney(r.value)}</td>
+                <td class="num ${rPlCls}">${r.plRub > 0 ? "+" : ""}${fmtMoney(r.plRub)}</td>
+                <td class="num ${rPlCls}">${r.plPct > 0 ? "+" : ""}${fmtDecimal(r.plPct, 2)}%</td>
+                <td class="num">${fmtDecimal(r.share, 1)}%</td>
+                <td class="num">
+                  <div class="row-btns">
+                    <button class="mini-link" onclick="event.stopPropagation(); openModal(${r.idx})">Изм.</button>
+                    <button class="mini-del" onclick="event.stopPropagation(); removeRow(${r.idx})" title="Удалить">✕</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join("");
+
+          return parentRow + childRows;
+        }).join("");
+
+        const subInv = rows.reduce((s, r) => s + r.invested, 0);
+        const subPrev = rows.reduce((s, r) => s + r.prevValue, 0);
+        const subVal = rows.reduce((s, r) => s + r.value, 0);
+        const subBase = isToday ? subPrev : subInv;
+        const subPl = subVal - subBase;
+        const subPlPct = subBase > 0 ? (subPl / subBase) * 100 : 0;
+        const subShare = totalPortfolioVal > 0 ? (subVal / totalPortfolioVal) * 100 : 0;
+
+        document.getElementById("holdingsFoot").innerHTML = `
+          <tr>
+            <td colspan="5">Итого (${groups.length} эмитентов · ${rows.length} поз.)</td>
+            <td class="num">${fmtMoney(subInv)}</td>
+            <td class="num">${fmtMoney(subVal)}</td>
+            <td class="num ${subPl >= 0 ? "pos" : "neg"}">${subPl > 0 ? "+" : ""}${fmtMoney(subPl)}</td>
+            <td class="num ${subPl >= 0 ? "pos" : "neg"}">${subPlPct > 0 ? "+" : ""}${fmtDecimal(subPlPct, 2)}%</td>
+            <td class="num">${fmtDecimal(subShare, 1)}%</td>
+            <td></td>
+          </tr>
+        `;
+        return;
       }
 
       rows.sort((a, b) => {
@@ -1852,7 +2179,6 @@
         return sortAsc ? vA - vB : vB - vA;
       });
 
-      const tbody = document.getElementById("holdingsBody");
       tbody.innerHTML = rows.map(r => {
         const dotColor = r.category === "Акции" ? "#0071e3" : (r.category === "Облигации" ? "#34a853" : "#e67e22");
         const plCls = r.plRub >= 0 ? "pos" : "neg";
@@ -1860,7 +2186,7 @@
           <tr>
             <td>
               <span class="asset-name">${r.name}</span>
-              ${r.ticker ? `<span class="asset-sub">${r.ticker}</span>` : ""}
+              <span class="asset-sub">${r.ticker ? `${r.ticker} · ` : ""}${r.issuerName}</span>
             </td>
             <td>
               <span class="class-dot-label">
@@ -1909,7 +2235,7 @@
     function setFilter(cat, btn) {
       activeFilter = cat;
       const searchEl = document.getElementById("searchInput");
-      if (searchEl && cat === "all") {
+      if (searchEl && (cat === "all" || cat === "issuers")) {
         searchEl.value = "";
       }
       document.querySelectorAll(".fpill").forEach(b => b.classList.remove("active"));
@@ -1922,6 +2248,13 @@
       const searchEl = document.getElementById("searchInput");
       if (searchEl) searchEl.value = "";
       setFilter(cat);
+    }
+
+    function selectIssuerFilter(issuerName) {
+      setFilter("all");
+      const searchEl = document.getElementById("searchInput");
+      if (searchEl) searchEl.value = issuerName;
+      renderAll();
     }
 
     function togglePieAssetSearch(assetName) {
@@ -2085,6 +2418,7 @@
         document.getElementById("fBoard").value = item.board;
         document.getElementById("fTicker").value = item.ticker;
         document.getElementById("fName").value = item.name;
+        document.getElementById("fIssuer").value = inferIssuer(item);
         document.getElementById("fQty").value = item.qty;
         document.getElementById("fAvgPrice").value = item.avgPrice;
         document.getElementById("fCurrPrice").value = item.currPrice;
@@ -2096,6 +2430,7 @@
         document.getElementById("fBoard").value = "TQCB";
         document.getElementById("fTicker").value = "";
         document.getElementById("fName").value = "";
+        document.getElementById("fIssuer").value = "";
         document.getElementById("fQty").value = "";
         document.getElementById("fAvgPrice").value = "";
         document.getElementById("fCurrPrice").value = "";
@@ -2152,6 +2487,7 @@
       const existing = holdings.find(h => h.ticker && h.ticker.toUpperCase() === val);
       if (existing && nameInput.value.trim().length === 0) {
         nameInput.value = existing.name;
+        document.getElementById("fIssuer").value = inferIssuer(existing);
         document.getElementById("fCategory").value = existing.category;
         document.getElementById("fBoard").value = existing.board;
         return;
@@ -2171,6 +2507,10 @@
           const nameIdx = cols.indexOf("SHORTNAME") >= 0 ? cols.indexOf("SHORTNAME") : cols.indexOf("SECNAME");
           if (nameIdx >= 0 && row[nameIdx]) {
             nameInput.value = row[nameIdx];
+            const issuerInput = document.getElementById("fIssuer");
+            if (issuerInput && !issuerInput.value.trim()) {
+              issuerInput.value = inferIssuer({ ticker: val, name: row[nameIdx], category: document.getElementById("fCategory").value });
+            }
           }
         }
       } catch (e) {}
@@ -2231,6 +2571,8 @@
 
       const ticker = rawTicker;
       const name = rawName || rawTicker;
+      const rawIssuer = document.getElementById("fIssuer")?.value.trim() || "";
+      const issuer = rawIssuer || inferIssuer({ ticker, name, category });
 
       if (idx >= 0) {
         const orig = holdings[idx];
@@ -2267,6 +2609,7 @@
           ...orig,
           ticker,
           name,
+          issuer,
           category,
           board,
           qty: finalQty,
@@ -2310,6 +2653,7 @@
           holdings.push({
             ticker,
             name,
+            issuer,
             category,
             board,
             qty,
@@ -2321,6 +2665,7 @@
         }
       }
 
+      ensureIssuersPopulated();
       persist();
       renderAll();
       closeModal();
@@ -3330,6 +3675,7 @@
       if (!Array.isArray(contributions) || contributions.length === 0) {
         contributions = structuredClone(DEFAULT_CONTRIBUTIONS);
       }
+      ensureIssuersPopulated();
       persist();
       renderAll();
       refreshMarketData();
